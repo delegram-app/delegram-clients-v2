@@ -90,12 +90,38 @@ function renderComponents(node, theme) {
 
     case 'section': return `<section style="max-width:${props.max_width||'1100px'};margin:${props.margin||'4rem auto'};padding:${props.padding||'0 2rem'};${props.style||''}">${childHtml}</section>`
 
-    case 'hero': return `<div style="text-align:center;max-width:800px;margin:5rem auto;padding:0 2rem;${props.style||''}">
+    case 'hero': {
+      let subtitleHtml = ''
+      if (props.subtitle) {
+        const subtitleText = escapeHtml(props.subtitle)
+        const baseStyle = `font-size:1.15rem;line-height:1.7;opacity:0.8;max-width:600px;margin:0 auto 2.5rem`
+        if (props.subtitle_animation === 'typewriter') {
+          const id = `tw_${Math.random().toString(36).slice(2,8)}`
+          subtitleHtml = `<p id="${id}" style="${baseStyle};min-height:2em"></p>
+<script>(function(){
+  var el=document.getElementById('${id}');
+  var txt=${JSON.stringify(props.subtitle)};
+  var i=0;
+  function type(){if(i<txt.length){el.textContent+=txt[i++];setTimeout(type,28);}};
+  setTimeout(type,400);
+})()</script>`
+        } else if (props.subtitle_animation === 'fade') {
+          subtitleHtml = `<p style="${baseStyle};opacity:0;animation:fadeIn 1s ease 0.3s forwards">${subtitleText}</p>
+<style>@keyframes fadeIn{to{opacity:.8}}</style>`
+        } else if (props.subtitle_animation === 'slide') {
+          subtitleHtml = `<p style="${baseStyle};opacity:0;transform:translateY(20px);animation:slideUp 0.7s ease 0.3s forwards">${subtitleText}</p>
+<style>@keyframes slideUp{to{opacity:.8;transform:translateY(0)}}</style>`
+        } else {
+          subtitleHtml = `<p style="${baseStyle}">${subtitleText}</p>`
+        }
+      }
+      return `<div style="text-align:center;max-width:800px;margin:5rem auto;padding:0 2rem;${props.style||''}">
   ${props.eyebrow ? `<p style="text-transform:uppercase;letter-spacing:0.1em;font-size:0.85rem;color:${pc};margin-bottom:1rem">${escapeHtml(props.eyebrow)}</p>` : ''}
   ${props.headline ? `<h1 style="font-size:clamp(2rem,5vw,3.5rem);font-weight:800;line-height:1.1;margin-bottom:1.5rem">${escapeHtml(props.headline)}</h1>` : ''}
-  ${props.subtitle ? `<p style="font-size:1.15rem;line-height:1.7;opacity:0.8;max-width:600px;margin:0 auto 2.5rem">${escapeHtml(props.subtitle)}</p>` : ''}
+  ${subtitleHtml}
   ${childHtml}
 </div>`
+    }
 
     case 'grid': return `<div style="display:grid;grid-template-columns:${props.columns||'repeat(auto-fit,minmax(280px,1fr))'};gap:${props.gap||'2rem'};${props.style||''}">${childHtml}</div>`
 
