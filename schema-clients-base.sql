@@ -10,7 +10,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- 1. CORE TENANCY / AUTH
 -- =========================================================
 
-CREATE TABLE companies (
+CREATE TABLE IF NOT EXISTS companies (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
     slug TEXT NOT NULL UNIQUE,
@@ -22,7 +22,7 @@ CREATE TABLE companies (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     email TEXT NOT NULL,
@@ -37,7 +37,7 @@ CREATE TABLE users (
     UNIQUE (company_id, email)
 );
 
-CREATE TABLE api_keys (
+CREATE TABLE IF NOT EXISTS api_keys (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     user_id UUID REFERENCES users(id) ON DELETE SET NULL,
@@ -54,7 +54,7 @@ CREATE TABLE api_keys (
 -- 2. MODULES / FEATURE FLAGS
 -- =========================================================
 
-CREATE TABLE modules (
+CREATE TABLE IF NOT EXISTS modules (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code TEXT NOT NULL UNIQUE,
     name TEXT NOT NULL,
@@ -62,7 +62,7 @@ CREATE TABLE modules (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE company_modules (
+CREATE TABLE IF NOT EXISTS company_modules (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     module_id UUID NOT NULL REFERENCES modules(id) ON DELETE CASCADE,
@@ -95,7 +95,7 @@ ON CONFLICT (code) DO NOTHING;
 -- 3. DOMAINS / SITE BUILDER
 -- =========================================================
 
-CREATE TABLE domains (
+CREATE TABLE IF NOT EXISTS domains (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     hostname TEXT NOT NULL,
@@ -109,7 +109,7 @@ CREATE TABLE domains (
     UNIQUE (hostname)
 );
 
-CREATE TABLE dns_records (
+CREATE TABLE IF NOT EXISTS dns_records (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     domain_id UUID NOT NULL REFERENCES domains(id) ON DELETE CASCADE,
     record_type TEXT NOT NULL,
@@ -120,7 +120,7 @@ CREATE TABLE dns_records (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE sites (
+CREATE TABLE IF NOT EXISTS sites (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     domain_id UUID REFERENCES domains(id) ON DELETE SET NULL,
@@ -136,7 +136,7 @@ CREATE TABLE sites (
     UNIQUE (company_id, slug)
 );
 
-CREATE TABLE pages (
+CREATE TABLE IF NOT EXISTS pages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     site_id UUID NOT NULL REFERENCES sites(id) ON DELETE CASCADE,
     parent_page_id UUID REFERENCES pages(id) ON DELETE SET NULL,
@@ -156,7 +156,7 @@ CREATE TABLE pages (
     UNIQUE (site_id, path)
 );
 
-CREATE TABLE media_assets (
+CREATE TABLE IF NOT EXISTS media_assets (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     site_id UUID REFERENCES sites(id) ON DELETE SET NULL,
@@ -175,7 +175,7 @@ CREATE TABLE media_assets (
 -- 4. CRM / PIPELINE / KANBAN
 -- =========================================================
 
-CREATE TABLE contacts (
+CREATE TABLE IF NOT EXISTS contacts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
@@ -194,7 +194,7 @@ CREATE TABLE contacts (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE pipelines (
+CREATE TABLE IF NOT EXISTS pipelines (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
@@ -203,7 +203,7 @@ CREATE TABLE pipelines (
     UNIQUE (company_id, name)
 );
 
-CREATE TABLE pipeline_stages (
+CREATE TABLE IF NOT EXISTS pipeline_stages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     pipeline_id UUID NOT NULL REFERENCES pipelines(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
@@ -215,7 +215,7 @@ CREATE TABLE pipeline_stages (
     UNIQUE (pipeline_id, sort_order)
 );
 
-CREATE TABLE deals (
+CREATE TABLE IF NOT EXISTS deals (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     pipeline_id UUID NOT NULL REFERENCES pipelines(id) ON DELETE CASCADE,
@@ -235,7 +235,7 @@ CREATE TABLE deals (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE notes (
+CREATE TABLE IF NOT EXISTS notes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     contact_id UUID REFERENCES contacts(id) ON DELETE CASCADE,
@@ -245,7 +245,7 @@ CREATE TABLE notes (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE contact_activities (
+CREATE TABLE IF NOT EXISTS contact_activities (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     contact_id UUID REFERENCES contacts(id) ON DELETE CASCADE,
@@ -261,7 +261,7 @@ CREATE TABLE contact_activities (
 -- 5. PAYMENTS / STRIPE
 -- =========================================================
 
-CREATE TABLE payment_customers (
+CREATE TABLE IF NOT EXISTS payment_customers (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     contact_id UUID REFERENCES contacts(id) ON DELETE SET NULL,
@@ -274,7 +274,7 @@ CREATE TABLE payment_customers (
     UNIQUE (provider, external_customer_id)
 );
 
-CREATE TABLE products (
+CREATE TABLE IF NOT EXISTS products (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
@@ -286,7 +286,7 @@ CREATE TABLE products (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE prices (
+CREATE TABLE IF NOT EXISTS prices (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
     currency TEXT NOT NULL DEFAULT 'USD',
@@ -298,7 +298,7 @@ CREATE TABLE prices (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE checkouts (
+CREATE TABLE IF NOT EXISTS checkouts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     contact_id UUID REFERENCES contacts(id) ON DELETE SET NULL,
@@ -315,7 +315,7 @@ CREATE TABLE checkouts (
     completed_at TIMESTAMPTZ
 );
 
-CREATE TABLE payments (
+CREATE TABLE IF NOT EXISTS payments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     payment_customer_id UUID REFERENCES payment_customers(id) ON DELETE SET NULL,
@@ -332,7 +332,7 @@ CREATE TABLE payments (
     UNIQUE (provider, external_payment_id)
 );
 
-CREATE TABLE subscriptions (
+CREATE TABLE IF NOT EXISTS subscriptions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     payment_customer_id UUID REFERENCES payment_customers(id) ON DELETE SET NULL,
@@ -353,7 +353,7 @@ CREATE TABLE subscriptions (
 -- 6. EMAIL / SUPPORT / OUTBOUND
 -- =========================================================
 
-CREATE TABLE email_accounts (
+CREATE TABLE IF NOT EXISTS email_accounts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     address TEXT NOT NULL,
@@ -369,7 +369,7 @@ CREATE TABLE email_accounts (
     UNIQUE (address)
 );
 
-CREATE TABLE email_threads (
+CREATE TABLE IF NOT EXISTS email_threads (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     contact_id UUID REFERENCES contacts(id) ON DELETE SET NULL,
@@ -384,7 +384,7 @@ CREATE TABLE email_threads (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE emails (
+CREATE TABLE IF NOT EXISTS emails (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     thread_id UUID NOT NULL REFERENCES email_threads(id) ON DELETE CASCADE,
     email_account_id UUID REFERENCES email_accounts(id) ON DELETE SET NULL,
@@ -406,7 +406,7 @@ CREATE TABLE emails (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE email_templates (
+CREATE TABLE IF NOT EXISTS email_templates (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
@@ -419,7 +419,7 @@ CREATE TABLE email_templates (
     UNIQUE (company_id, name)
 );
 
-CREATE TABLE support_rules (
+CREATE TABLE IF NOT EXISTS support_rules (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     email_account_id UUID REFERENCES email_accounts(id) ON DELETE CASCADE,
@@ -436,7 +436,7 @@ CREATE TABLE support_rules (
 -- 7. ADS / META / CREATIVE / BUDGETS
 -- =========================================================
 
-CREATE TABLE ad_accounts (
+CREATE TABLE IF NOT EXISTS ad_accounts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     platform TEXT NOT NULL,
@@ -450,7 +450,7 @@ CREATE TABLE ad_accounts (
     UNIQUE (platform, external_account_id)
 );
 
-CREATE TABLE ad_campaigns (
+CREATE TABLE IF NOT EXISTS ad_campaigns (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     ad_account_id UUID NOT NULL REFERENCES ad_accounts(id) ON DELETE CASCADE,
@@ -468,7 +468,7 @@ CREATE TABLE ad_campaigns (
     UNIQUE (ad_account_id, external_campaign_id)
 );
 
-CREATE TABLE ad_sets (
+CREATE TABLE IF NOT EXISTS ad_sets (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     campaign_id UUID NOT NULL REFERENCES ad_campaigns(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
@@ -481,7 +481,7 @@ CREATE TABLE ad_sets (
     UNIQUE (campaign_id, external_ad_set_id)
 );
 
-CREATE TABLE creatives (
+CREATE TABLE IF NOT EXISTS creatives (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     creative_type TEXT NOT NULL,
@@ -496,7 +496,7 @@ CREATE TABLE creatives (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE ads (
+CREATE TABLE IF NOT EXISTS ads (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     ad_set_id UUID NOT NULL REFERENCES ad_sets(id) ON DELETE CASCADE,
     creative_id UUID REFERENCES creatives(id) ON DELETE SET NULL,
@@ -508,7 +508,7 @@ CREATE TABLE ads (
     UNIQUE (ad_set_id, external_ad_id)
 );
 
-CREATE TABLE ad_metrics_daily (
+CREATE TABLE IF NOT EXISTS ad_metrics_daily (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     ad_account_id UUID REFERENCES ad_accounts(id) ON DELETE CASCADE,
@@ -531,7 +531,7 @@ CREATE TABLE ad_metrics_daily (
 -- 8. UGC / VIDEO GENERATION
 -- =========================================================
 
-CREATE TABLE video_projects (
+CREATE TABLE IF NOT EXISTS video_projects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
@@ -547,7 +547,7 @@ CREATE TABLE video_projects (
     completed_at TIMESTAMPTZ
 );
 
-CREATE TABLE video_scenes (
+CREATE TABLE IF NOT EXISTS video_scenes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     video_project_id UUID NOT NULL REFERENCES video_projects(id) ON DELETE CASCADE,
     sort_order INTEGER NOT NULL,
@@ -565,7 +565,7 @@ CREATE TABLE video_scenes (
 -- 9. SOCIAL / TWITTER
 -- =========================================================
 
-CREATE TABLE social_accounts (
+CREATE TABLE IF NOT EXISTS social_accounts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     platform TEXT NOT NULL,
@@ -577,7 +577,7 @@ CREATE TABLE social_accounts (
     UNIQUE (platform, external_account_id)
 );
 
-CREATE TABLE social_posts (
+CREATE TABLE IF NOT EXISTS social_posts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     social_account_id UUID REFERENCES social_accounts(id) ON DELETE SET NULL,
@@ -593,7 +593,7 @@ CREATE TABLE social_posts (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE social_post_metrics_daily (
+CREATE TABLE IF NOT EXISTS social_post_metrics_daily (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     social_post_id UUID NOT NULL REFERENCES social_posts(id) ON DELETE CASCADE,
     metric_date DATE NOT NULL,
@@ -612,7 +612,7 @@ CREATE TABLE social_post_metrics_daily (
 -- 10. COLD OUTREACH
 -- =========================================================
 
-CREATE TABLE outreach_campaigns (
+CREATE TABLE IF NOT EXISTS outreach_campaigns (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
@@ -624,7 +624,7 @@ CREATE TABLE outreach_campaigns (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE outreach_steps (
+CREATE TABLE IF NOT EXISTS outreach_steps (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     campaign_id UUID NOT NULL REFERENCES outreach_campaigns(id) ON DELETE CASCADE,
     step_order INTEGER NOT NULL,
@@ -637,7 +637,7 @@ CREATE TABLE outreach_steps (
     UNIQUE (campaign_id, step_order)
 );
 
-CREATE TABLE outreach_targets (
+CREATE TABLE IF NOT EXISTS outreach_targets (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     campaign_id UUID NOT NULL REFERENCES outreach_campaigns(id) ON DELETE CASCADE,
     contact_id UUID NOT NULL REFERENCES contacts(id) ON DELETE CASCADE,
@@ -650,7 +650,7 @@ CREATE TABLE outreach_targets (
     UNIQUE (campaign_id, contact_id)
 );
 
-CREATE TABLE outreach_events (
+CREATE TABLE IF NOT EXISTS outreach_events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     campaign_id UUID REFERENCES outreach_campaigns(id) ON DELETE CASCADE,
     outreach_target_id UUID REFERENCES outreach_targets(id) ON DELETE CASCADE,
@@ -664,7 +664,7 @@ CREATE TABLE outreach_events (
 -- 11. BROWSER AUTOMATION
 -- =========================================================
 
-CREATE TABLE browser_sessions (
+CREATE TABLE IF NOT EXISTS browser_sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     user_id UUID REFERENCES users(id) ON DELETE SET NULL,
@@ -676,7 +676,7 @@ CREATE TABLE browser_sessions (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE browser_actions (
+CREATE TABLE IF NOT EXISTS browser_actions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     browser_session_id UUID NOT NULL REFERENCES browser_sessions(id) ON DELETE CASCADE,
     action_order INTEGER NOT NULL,
@@ -695,7 +695,7 @@ CREATE TABLE browser_actions (
 -- 12. AI AGENTS / CHAT / RUNS
 -- =========================================================
 
-CREATE TABLE agents (
+CREATE TABLE IF NOT EXISTS agents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
@@ -708,7 +708,7 @@ CREATE TABLE agents (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE conversations (
+CREATE TABLE IF NOT EXISTS conversations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     contact_id UUID REFERENCES contacts(id) ON DELETE SET NULL,
@@ -720,7 +720,7 @@ CREATE TABLE conversations (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE messages (
+CREATE TABLE IF NOT EXISTS messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
     sender_type TEXT NOT NULL,
@@ -732,7 +732,7 @@ CREATE TABLE messages (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE agent_runs (
+CREATE TABLE IF NOT EXISTS agent_runs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     agent_id UUID REFERENCES agents(id) ON DELETE SET NULL,
@@ -751,7 +751,7 @@ CREATE TABLE agent_runs (
 -- 13. DOCUMENTS / CONTENT GENERATION
 -- =========================================================
 
-CREATE TABLE documents (
+CREATE TABLE IF NOT EXISTS documents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
@@ -766,7 +766,7 @@ CREATE TABLE documents (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE document_versions (
+CREATE TABLE IF NOT EXISTS document_versions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     document_id UUID NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
     version_number INTEGER NOT NULL,
@@ -781,7 +781,7 @@ CREATE TABLE document_versions (
 -- 14. ANALYTICS / EVENTS / METRICS
 -- =========================================================
 
-CREATE TABLE events (
+CREATE TABLE IF NOT EXISTS events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     user_id UUID REFERENCES users(id) ON DELETE SET NULL,
@@ -795,7 +795,7 @@ CREATE TABLE events (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE metrics_daily (
+CREATE TABLE IF NOT EXISTS metrics_daily (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     metric_name TEXT NOT NULL,
@@ -806,7 +806,7 @@ CREATE TABLE metrics_daily (
     UNIQUE (company_id, metric_name, metric_date, dimension)
 );
 
-CREATE TABLE attribution_touches (
+CREATE TABLE IF NOT EXISTS attribution_touches (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     contact_id UUID REFERENCES contacts(id) ON DELETE CASCADE,
@@ -824,7 +824,7 @@ CREATE TABLE attribution_touches (
 -- 15. TASK SCHEDULING / NIGHT SHIFTS / JOBS
 -- =========================================================
 
-CREATE TABLE task_queues (
+CREATE TABLE IF NOT EXISTS task_queues (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
@@ -835,7 +835,7 @@ CREATE TABLE task_queues (
     UNIQUE (company_id, name)
 );
 
-CREATE TABLE tasks (
+CREATE TABLE IF NOT EXISTS tasks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     queue_id UUID REFERENCES task_queues(id) ON DELETE SET NULL,
@@ -858,7 +858,7 @@ CREATE TABLE tasks (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE task_runs (
+CREATE TABLE IF NOT EXISTS task_runs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     task_id UUID NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
     run_number INTEGER NOT NULL,
@@ -875,7 +875,7 @@ CREATE TABLE task_runs (
 -- 16. DOMAIN ROUTING / CUSTOM SUBDOMAINS
 -- =========================================================
 
-CREATE TABLE subdomain_routes (
+CREATE TABLE IF NOT EXISTS subdomain_routes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     subdomain TEXT NOT NULL,
@@ -890,7 +890,7 @@ CREATE TABLE subdomain_routes (
 -- 17. EXECUTION / AUDIT / ACTION LOG
 -- =========================================================
 
-CREATE TABLE actions (
+CREATE TABLE IF NOT EXISTS actions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     user_id UUID REFERENCES users(id) ON DELETE SET NULL,
@@ -908,7 +908,7 @@ CREATE TABLE actions (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE webhooks (
+CREATE TABLE IF NOT EXISTS webhooks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     provider TEXT NOT NULL,
@@ -925,42 +925,42 @@ CREATE TABLE webhooks (
 -- 18. INDEXES
 -- =========================================================
 
-CREATE INDEX idx_users_company_id ON users(company_id);
-CREATE INDEX idx_domains_company_id ON domains(company_id);
-CREATE INDEX idx_sites_company_id ON sites(company_id);
-CREATE INDEX idx_pages_site_id ON pages(site_id);
-CREATE INDEX idx_contacts_company_id ON contacts(company_id);
-CREATE INDEX idx_contacts_email ON contacts(email);
-CREATE INDEX idx_deals_company_id ON deals(company_id);
-CREATE INDEX idx_deals_stage_id ON deals(stage_id);
-CREATE INDEX idx_notes_company_id ON notes(company_id);
-CREATE INDEX idx_contact_activities_company_id ON contact_activities(company_id);
-CREATE INDEX idx_payment_customers_company_id ON payment_customers(company_id);
-CREATE INDEX idx_payments_company_id ON payments(company_id);
-CREATE INDEX idx_subscriptions_company_id ON subscriptions(company_id);
-CREATE INDEX idx_email_accounts_company_id ON email_accounts(company_id);
-CREATE INDEX idx_email_threads_company_id ON email_threads(company_id);
-CREATE INDEX idx_emails_thread_id ON emails(thread_id);
-CREATE INDEX idx_ad_accounts_company_id ON ad_accounts(company_id);
-CREATE INDEX idx_ad_campaigns_company_id ON ad_campaigns(company_id);
-CREATE INDEX idx_ad_metrics_daily_company_id_date ON ad_metrics_daily(company_id, metric_date);
-CREATE INDEX idx_video_projects_company_id ON video_projects(company_id);
-CREATE INDEX idx_social_accounts_company_id ON social_accounts(company_id);
-CREATE INDEX idx_social_posts_company_id ON social_posts(company_id);
-CREATE INDEX idx_outreach_campaigns_company_id ON outreach_campaigns(company_id);
-CREATE INDEX idx_outreach_targets_campaign_id ON outreach_targets(campaign_id);
-CREATE INDEX idx_browser_sessions_company_id ON browser_sessions(company_id);
-CREATE INDEX idx_agents_company_id ON agents(company_id);
-CREATE INDEX idx_conversations_company_id ON conversations(company_id);
-CREATE INDEX idx_messages_conversation_id ON messages(conversation_id);
-CREATE INDEX idx_agent_runs_company_id ON agent_runs(company_id);
-CREATE INDEX idx_documents_company_id ON documents(company_id);
-CREATE INDEX idx_events_company_id_occurred_at ON events(company_id, occurred_at);
-CREATE INDEX idx_metrics_daily_company_id_metric_date ON metrics_daily(company_id, metric_date);
-CREATE INDEX idx_tasks_company_id_status ON tasks(company_id, status);
-CREATE INDEX idx_tasks_scheduled_for ON tasks(scheduled_for);
-CREATE INDEX idx_actions_company_id_created_at ON actions(company_id, created_at);
-CREATE INDEX idx_webhooks_company_id_received_at ON webhooks(company_id, received_at);
+CREATE INDEX IF NOT EXISTS idx_users_company_id ON users(company_id);
+CREATE INDEX IF NOT EXISTS idx_domains_company_id ON domains(company_id);
+CREATE INDEX IF NOT EXISTS idx_sites_company_id ON sites(company_id);
+CREATE INDEX IF NOT EXISTS idx_pages_site_id ON pages(site_id);
+CREATE INDEX IF NOT EXISTS idx_contacts_company_id ON contacts(company_id);
+CREATE INDEX IF NOT EXISTS idx_contacts_email ON contacts(email);
+CREATE INDEX IF NOT EXISTS idx_deals_company_id ON deals(company_id);
+CREATE INDEX IF NOT EXISTS idx_deals_stage_id ON deals(stage_id);
+CREATE INDEX IF NOT EXISTS idx_notes_company_id ON notes(company_id);
+CREATE INDEX IF NOT EXISTS idx_contact_activities_company_id ON contact_activities(company_id);
+CREATE INDEX IF NOT EXISTS idx_payment_customers_company_id ON payment_customers(company_id);
+CREATE INDEX IF NOT EXISTS idx_payments_company_id ON payments(company_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_company_id ON subscriptions(company_id);
+CREATE INDEX IF NOT EXISTS idx_email_accounts_company_id ON email_accounts(company_id);
+CREATE INDEX IF NOT EXISTS idx_email_threads_company_id ON email_threads(company_id);
+CREATE INDEX IF NOT EXISTS idx_emails_thread_id ON emails(thread_id);
+CREATE INDEX IF NOT EXISTS idx_ad_accounts_company_id ON ad_accounts(company_id);
+CREATE INDEX IF NOT EXISTS idx_ad_campaigns_company_id ON ad_campaigns(company_id);
+CREATE INDEX IF NOT EXISTS idx_ad_metrics_daily_company_id_date ON ad_metrics_daily(company_id, metric_date);
+CREATE INDEX IF NOT EXISTS idx_video_projects_company_id ON video_projects(company_id);
+CREATE INDEX IF NOT EXISTS idx_social_accounts_company_id ON social_accounts(company_id);
+CREATE INDEX IF NOT EXISTS idx_social_posts_company_id ON social_posts(company_id);
+CREATE INDEX IF NOT EXISTS idx_outreach_campaigns_company_id ON outreach_campaigns(company_id);
+CREATE INDEX IF NOT EXISTS idx_outreach_targets_campaign_id ON outreach_targets(campaign_id);
+CREATE INDEX IF NOT EXISTS idx_browser_sessions_company_id ON browser_sessions(company_id);
+CREATE INDEX IF NOT EXISTS idx_agents_company_id ON agents(company_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_company_id ON conversations(company_id);
+CREATE INDEX IF NOT EXISTS idx_messages_conversation_id ON messages(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_agent_runs_company_id ON agent_runs(company_id);
+CREATE INDEX IF NOT EXISTS idx_documents_company_id ON documents(company_id);
+CREATE INDEX IF NOT EXISTS idx_events_company_id_occurred_at ON events(company_id, occurred_at);
+CREATE INDEX IF NOT EXISTS idx_metrics_daily_company_id_metric_date ON metrics_daily(company_id, metric_date);
+CREATE INDEX IF NOT EXISTS idx_tasks_company_id_status ON tasks(company_id, status);
+CREATE INDEX IF NOT EXISTS idx_tasks_scheduled_for ON tasks(scheduled_for);
+CREATE INDEX IF NOT EXISTS idx_actions_company_id_created_at ON actions(company_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_webhooks_company_id_received_at ON webhooks(company_id, received_at);
 
 -- =========================================================
 -- 19. UPDATED_AT TRIGGER
@@ -974,36 +974,47 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_companies_updated_at ON companies;
 CREATE TRIGGER trg_companies_updated_at BEFORE UPDATE ON companies
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
+DROP TRIGGER IF EXISTS trg_users_updated_at ON users;
 CREATE TRIGGER trg_users_updated_at BEFORE UPDATE ON users
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
+DROP TRIGGER IF EXISTS trg_company_modules_updated_at ON company_modules;
 CREATE TRIGGER trg_company_modules_updated_at BEFORE UPDATE ON company_modules
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
+DROP TRIGGER IF EXISTS trg_domains_updated_at ON domains;
 CREATE TRIGGER trg_domains_updated_at BEFORE UPDATE ON domains
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
+DROP TRIGGER IF EXISTS trg_sites_updated_at ON sites;
 CREATE TRIGGER trg_sites_updated_at BEFORE UPDATE ON sites
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
+DROP TRIGGER IF EXISTS trg_pages_updated_at ON pages;
 CREATE TRIGGER trg_pages_updated_at BEFORE UPDATE ON pages
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
+DROP TRIGGER IF EXISTS trg_contacts_updated_at ON contacts;
 CREATE TRIGGER trg_contacts_updated_at BEFORE UPDATE ON contacts
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
+DROP TRIGGER IF EXISTS trg_deals_updated_at ON deals;
 CREATE TRIGGER trg_deals_updated_at BEFORE UPDATE ON deals
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
+DROP TRIGGER IF EXISTS trg_documents_updated_at ON documents;
 CREATE TRIGGER trg_documents_updated_at BEFORE UPDATE ON documents
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
+DROP TRIGGER IF EXISTS trg_tasks_updated_at ON tasks;
 CREATE TRIGGER trg_tasks_updated_at BEFORE UPDATE ON tasks
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
+DROP TRIGGER IF EXISTS trg_conversations_updated_at ON conversations;
 CREATE TRIGGER trg_conversations_updated_at BEFORE UPDATE ON conversations
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
@@ -1057,7 +1068,7 @@ CREATE INDEX IF NOT EXISTS idx_subscribers_company_id ON subscribers(company_id)
 CREATE INDEX IF NOT EXISTS idx_page_views_company_id_created_at ON page_views(company_id, created_at);
 
 -- Trigger for company_memory
-CREATE TRIGGER IF NOT EXISTS trg_company_memory_updated_at 
+CREATE TRIGGER trg_company_memory_updated_at 
 BEFORE UPDATE ON company_memory 
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
