@@ -5,6 +5,7 @@
  */
 
 const express = require('express')
+const path = require('path')
 const { platform, clients } = require('./db')
 const { renderPage } = require('./renderer')
 
@@ -13,6 +14,7 @@ const PORT = process.env.PORT || 3000
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use('/assets', express.static(path.join(__dirname, 'public'), { maxAge: '7d' }))
 
 // ── Subdomain resolution ──────────────────────────────────────────────────────
 
