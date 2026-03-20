@@ -32,9 +32,9 @@ async function getCompany(req) {
 
   const { company_id } = route.rows[0]
 
-  // Get company from platform DB
-  const company = await platform.query(
-    `SELECT id, name, slug, plan, status, credits_remaining, settings
+  // Get company from clients DB (source of truth for tenant data)
+  const company = await clients.query(
+    `SELECT id, name, slug, plan, status, settings
      FROM companies WHERE id = $1 AND status = 'active'`,
     [company_id]
   )
@@ -164,7 +164,7 @@ app.get('/api/stats', async (req, res) => {
       subscribers: parseInt(subs.rows[0].count),
       page_views_7d: parseInt(views.rows[0].count),
       contacts: parseInt(contacts.rows[0].count),
-      plan: company.plan,
+      plan: company.plan || 'starter',
     })
   } catch (err) {
     res.status(500).json({ error: err.message })
