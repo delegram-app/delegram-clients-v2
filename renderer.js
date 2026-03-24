@@ -378,14 +378,27 @@ document.getElementById('contact-modal').addEventListener('click', function(e) {
 })
 
 // Contact form submit
-document.getElementById('contact-form').addEventListener('submit', async function(e) {
+document.getElementById('contact-form')?.addEventListener('submit', async function(e) {
   e.preventDefault()
   const btn = this.querySelector('[type="submit"]')
   btn.disabled = true; btn.textContent = 'Sending...'
   const data = Object.fromEntries(new FormData(this))
   try {
-    await fetch('/contact', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) })
-    this.innerHTML = '<p style="text-align:center;padding:1rem;color:${T.primary}">✓ Message sent! We\\'ll be in touch soon.</p>'
+    const res = await fetch('/contact', { method: 'POST', headers: {'Content-Type':'application/json','Accept':'application/json'}, body: JSON.stringify(data) })
+    if (res.ok) {
+      const name = data.name ? data.name.split(' ')[0] : ''
+      this.innerHTML = \`<div style="text-align:center;padding:2rem 1rem">
+        <div style="font-size:1.5rem;margin-bottom:0.75rem">✓</div>
+        <p style="font-size:1rem;font-weight:600;color:${T.primary};margin-bottom:0.5rem">\${name ? 'Thank you, ' + name + '.' : 'Thank you.'}</p>
+        <p style="opacity:0.65;font-size:0.9rem;line-height:1.6">${
+          T === themes.prestige ? 'Your enquiry has been received. A member of our team will respond within one business day.' :
+          T === themes.warm ? "We've got your message and we're excited to connect. We'll be in touch very soon!" :
+          T === themes.fresh ? "You're all set! We'll reach out shortly to learn more about your goals." :
+          T === themes.forge ? "Message received. We'll be in touch with a straight answer shortly." :
+          "Your message is on its way. We'll get back to you soon."
+        }</p>
+      </div>\`
+    }
   } catch(err) {
     btn.disabled = false; btn.textContent = 'Send Message'
   }
@@ -420,7 +433,13 @@ document.querySelectorAll('[data-subscribe-form]').forEach(form => {
         body: JSON.stringify({ email, name: form.querySelector('[data-name]')?.value })
       });
       if (res.ok) {
-        form.innerHTML = '<p style="color:var(--primary);padding:1rem">✓ You\\'re on the list!</p>';
+        form.innerHTML = \`<p style="color:${T.primary};padding:1rem;text-align:center;font-size:0.95rem">${
+          T === themes.prestige ? '✓ Thank you. You will hear from us shortly.' :
+          T === themes.warm ? "✓ You're on the list — we'll be in touch soon!" :
+          T === themes.fresh ? '✓ Welcome! Check your inbox for what comes next.' :
+          T === themes.forge ? '✓ Received. We\'ll be in contact shortly.' :
+          "✓ You're on the list!"
+        }</p>\`
       }
     } catch(e) {
       if (btn) { btn.disabled = false; btn.textContent = 'Join'; }

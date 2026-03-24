@@ -419,32 +419,7 @@ app.post('/contact', async (req, res) => {
       console.error('Platform lead sync error:', e.message)
     }
 
-    // Return a proper thank you page
-    res.send(`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thank you — ${company.name || 'We'} will be in touch</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0 }
-    body { font-family: -apple-system, 'Inter', sans-serif; background: #0D1B2A; color: #E8E0D4; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
-    .card { text-align: center; max-width: 480px; }
-    .icon { font-size: 3rem; margin-bottom: 1.5rem; }
-    h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 1rem; }
-    p { opacity: 0.7; line-height: 1.7; margin-bottom: 2rem; }
-    a { display: inline-block; background: #B8974A; color: #0D1B2A; padding: 0.75rem 2rem; text-decoration: none; font-weight: 600; border-radius: 2px; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="icon">✓</div>
-    <h1>Thank you${name ? ', ' + name : ''}.</h1>
-    <p>Your message has been received. Someone from ${company.name || 'our team'} will be in touch with you shortly.</p>
-    <a href="/">← Back to site</a>
-  </div>
-</body>
-</html>`)
+    res.json({ ok: true })
   } catch (err) {
     console.error('Contact error:', err)
     res.status(500).send('Something went wrong. Please try again.')
