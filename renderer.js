@@ -387,16 +387,24 @@ document.getElementById('contact-form')?.addEventListener('submit', async functi
     const res = await fetch('/contact', { method: 'POST', headers: {'Content-Type':'application/json','Accept':'application/json'}, body: JSON.stringify(data) })
     if (res.ok) {
       const name = data.name ? data.name.split(' ')[0] : ''
+      const industry = (${JSON.stringify(contentJson?.props?.industry || '')} || '').toLowerCase()
+      const isLegal = /law|legal|attorney|solicitor|counsel|barrister/.test(industry)
+      const isMedical = /medical|clinic|health|dental|therapy|physio|wellness/.test(industry)
+      const isHospitality = /restaurant|cafe|hotel|hospitality|catering|food|dining/.test(industry)
+      const isFitness = /fitness|gym|yoga|nutrition|coach|pilates|personal trainer/.test(industry)
+      const isConstruction = /construction|property|real estate|building|contractor|trades/.test(industry)
+      const isFinance = /finance|accounting|investment|wealth|insurance|bank|financial/.test(industry)
+      const confirmMsg = isLegal ? 'Your enquiry has been received. A member of our team will be in contact within one business day.' :
+        isMedical ? 'Thank you for reaching out. Our team will be in touch to arrange a consultation.' :
+        isHospitality ? "We've received your message and we're looking forward to hearing more. We'll be in touch very soon!" :
+        isFitness ? "You're all set! We'll reach out shortly to discuss your goals." :
+        isConstruction ? 'Message received. We\'ll be in touch with the details you need.' :
+        isFinance ? 'Your enquiry has been noted. One of our advisors will follow up with you shortly.' :
+        "Your message is on its way. We'll get back to you soon."
       this.innerHTML = \`<div style="text-align:center;padding:2rem 1rem">
         <div style="font-size:1.5rem;margin-bottom:0.75rem">✓</div>
         <p style="font-size:1rem;font-weight:600;color:${T.primary};margin-bottom:0.5rem">\${name ? 'Thank you, ' + name + '.' : 'Thank you.'}</p>
-        <p style="opacity:0.65;font-size:0.9rem;line-height:1.6">${
-          T === themes.prestige ? 'Your enquiry has been received. A member of our team will respond within one business day.' :
-          T === themes.warm ? "We've got your message and we're excited to connect. We'll be in touch very soon!" :
-          T === themes.fresh ? "You're all set! We'll reach out shortly to learn more about your goals." :
-          T === themes.forge ? "Message received. We'll be in touch with a straight answer shortly." :
-          "Your message is on its way. We'll get back to you soon."
-        }</p>
+        <p style="opacity:0.65;font-size:0.9rem;line-height:1.6">\${confirmMsg}</p>
       </div>\`
     }
   } catch(err) {
@@ -434,10 +442,10 @@ document.querySelectorAll('[data-subscribe-form]').forEach(form => {
       });
       if (res.ok) {
         form.innerHTML = \`<p style="color:${T.primary};padding:1rem;text-align:center;font-size:0.95rem">${
-          T === themes.prestige ? '✓ Thank you. You will hear from us shortly.' :
-          T === themes.warm ? "✓ You're on the list — we'll be in touch soon!" :
-          T === themes.fresh ? '✓ Welcome! Check your inbox for what comes next.' :
-          T === themes.forge ? '✓ Received. We\'ll be in contact shortly.' :
+          T.bg === '#0D1B2A' ? '✓ Thank you. You will hear from us shortly.' :
+          T.fontHeading?.includes('Lora') ? "✓ You're on the list — we'll be in touch soon!" :
+          T.bg === '#F7F9F4' ? '✓ Welcome! Check your inbox for what comes next.' :
+          T.bg === '#1A1A18' ? '✓ Received. We\'ll be in contact shortly.' :
           "✓ You're on the list!"
         }</p>\`
       }
