@@ -3,65 +3,85 @@
  * content_json is a component tree: { type, props, children }
  */
 
+'use strict'
+const { iconSvg } = require('./icons.js')
+const { marked } = require('marked')
+
 // ─── 6 Industry Themes ──────────────────────────────────────────────────────
 
 const THEMES = {
 
   // 1. Prestige — Luxury, chauffeur, private aviation, high-end hospitality
   prestige: {
-    bg: '#09090B',
-    text: '#F5F0E8',
-    primary: '#C9A84C',
-    muted: 'rgba(201,168,76,0.15)',
-    border: 'rgba(201,168,76,0.2)',
-    borderSubtle: 'rgba(255,255,255,0.08)',
-    cardBg: 'rgba(255,255,255,0.03)',
-    navBorder: 'rgba(201,168,76,0.15)',
-    radius: '2px',
-    radiusLg: '4px',
-    btnRadius: '2px',
-    fontHeading: "'Playfair Display', Georgia, serif",
+    bg: '#0D1B2A',
+    text: '#E8E0D4',
+    primary: '#B8974A',
+    muted: 'rgba(184,151,74,0.12)',
+    border: 'rgba(184,151,74,0.25)',
+    borderSubtle: 'rgba(232,224,212,0.08)',
+    cardBg: 'rgba(232,224,212,0.04)',
+    navBorder: 'rgba(184,151,74,0.15)',
+    radius: '0px',
+    radiusLg: '2px',
+    btnRadius: '0px',
+    fontHeading: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
     fontBody: "'Inter', -apple-system, sans-serif",
-    fontImport: "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap",
-    headingWeight: '700',
-    headingTracking: 'letter-spacing:-0.01em',
-    eyebrowStyle: 'letter-spacing:0.2em;font-size:0.75rem;text-transform:uppercase;',
-    statValueColor: '#C9A84C',
-    shadow: '0 1px 3px rgba(0,0,0,0.5)',
+    fontImport: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap",
+    headingWeight: '600',
+    headingTracking: 'letter-spacing:0.01em',
+    eyebrowStyle: 'letter-spacing:0.25em;font-size:0.7rem;text-transform:uppercase;font-weight:400;opacity:0.7;',
+    statValueColor: '#B8974A',
+    shadow: '0 1px 4px rgba(0,0,0,0.6)',
     heroAlign: 'center',
-    sectionPadding: '6rem 2rem',
+    sectionPadding: '7rem 2rem',
     customCss: `
-      h1,h2,h3 { font-family: 'Playfair Display', Georgia, serif; }
-      nav a { font-weight: 300; letter-spacing: 0.05em; font-size: 0.9rem; }
-      .divider-line { border-color: rgba(201,168,76,0.2) !important; }
+      @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+      h1,h2,h3 { font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif; font-weight: 600; letter-spacing: 0.01em; }
+      h1 { font-size: clamp(2.8rem, 6vw, 5rem) !important; line-height: 1.05 !important; }
+      h2 { font-size: clamp(1.8rem, 3.5vw, 2.8rem) !important; }
+      nav a { font-weight: 300; letter-spacing: 0.08em; font-size: 0.85rem; text-transform: uppercase; }
+      body { background: #0D1B2A; }
+      nav { background: rgba(13,27,42,0.97); border-bottom: 1px solid rgba(184,151,74,0.15); }
+      .card { border: 1px solid rgba(184,151,74,0.15) !important; }
+      a[href] { text-decoration: none; }
+      button, a.btn { border-radius: 0 !important; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.85rem; font-weight: 500; }
+      p { font-weight: 300; line-height: 1.9; opacity: 0.8; }
+      .testimonial-quote { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 1.1rem; }
     `,
   },
 
   // 2. Corporate — B2B SaaS, fintech, professional services, tech
   corporate: {
-    bg: '#0F172A',
-    text: '#E2E8F0',
-    primary: '#6366F1',
-    muted: 'rgba(99,102,241,0.12)',
-    border: 'rgba(99,102,241,0.3)',
-    borderSubtle: 'rgba(255,255,255,0.08)',
-    cardBg: 'rgba(255,255,255,0.04)',
-    navBorder: 'rgba(255,255,255,0.07)',
+    bg: '#060B18',
+    text: '#EEF2FF',
+    primary: '#818CF8',
+    muted: 'rgba(129,140,248,0.1)',
+    border: 'rgba(129,140,248,0.25)',
+    borderSubtle: 'rgba(255,255,255,0.06)',
+    cardBg: 'rgba(255,255,255,0.03)',
+    navBorder: 'rgba(255,255,255,0.06)',
     radius: '8px',
-    radiusLg: '12px',
+    radiusLg: '16px',
     btnRadius: '6px',
-    fontHeading: "'Inter', -apple-system, sans-serif",
+    fontHeading: "'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif",
     fontBody: "'Inter', -apple-system, sans-serif",
-    fontImport: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap",
+    fontImport: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap",
     headingWeight: '800',
     headingTracking: 'letter-spacing:-0.04em',
-    eyebrowStyle: 'letter-spacing:0.08em;font-size:0.8rem;text-transform:uppercase;',
-    statValueColor: '#6366F1',
-    shadow: '0 4px 24px rgba(99,102,241,0.15)',
+    eyebrowStyle: 'letter-spacing:0.1em;font-size:0.75rem;text-transform:uppercase;font-weight:600;',
+    statValueColor: '#818CF8',
+    shadow: '0 4px 32px rgba(129,140,248,0.12)',
     heroAlign: 'center',
     sectionPadding: '5rem 2rem',
     customCss: `
+      @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+      body { background: #060B18; }
+      h1,h2,h3 { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
+      h1 { font-size: clamp(2.5rem, 5.5vw, 4.5rem) !important; }
+      nav { background: rgba(6,11,24,0.95); backdrop-filter: blur(16px); }
       .stat-value { font-variant-numeric: tabular-nums; }
+      .card { background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)) !important; backdrop-filter: blur(8px); }
+      a[href]:not(nav a) { border-bottom: 1px solid rgba(129,140,248,0.3); }
     `,
   },
 
@@ -210,12 +230,64 @@ function resolveTheme(siteTheme) {
 // ─── Page renderer ───────────────────────────────────────────────────────────
 
 function renderPage({ company, site, page }) {
-  const T = resolveTheme(site.theme || {})
+  // Blog post and blog listing have their own renderers
+  if (page.page_type === 'blog_post') return renderBlogPost(page, site, company)
+  if (page.page_type === 'blog_listing') return renderBlogListing([], site, company)
+
+  let T = resolveTheme(site.theme || {})
+
+  // Override with brand colors if extracted from existing website
+  const brandColors = page.content_json?.props?.brand_colors
+  if (brandColors?.primary) {
+    // Convert hex to determine if dark/light and adjust palette
+    const hex = brandColors.primary.replace('#', '')
+    const r = parseInt(hex.slice(0, 2), 16)
+    const g = parseInt(hex.slice(2, 4), 16)
+    const b = parseInt(hex.slice(4, 6), 16)
+    const luminance = (r * 0.299 + g * 0.587 + b * 0.114) / 255
+    const isDarkPrimary = luminance < 0.5
+
+    T = {
+      ...T,
+      primary: brandColors.secondary || (isDarkPrimary ? brandColors.primary : brandColors.primary),
+      bg: isDarkPrimary ? brandColors.primary : (brandColors.secondary || T.bg),
+      muted: brandColors.primary + '18',
+      border: brandColors.primary + '33',
+      statValueColor: brandColors.secondary || brandColors.primary,
+    }
+  }
+
   const seo = { ...(site.seo || {}), ...(page.seo || {}) }
 
-  const bodyHtml = renderComponents(page.content_json, T)
+  // Auto-assign section IDs from content context if missing
+  const contentJson = page.content_json
+  if (contentJson?.children) {
+    contentJson.children.forEach((child, i) => {
+      if (child.type !== 'section') return
+      if (child.props?.id) return // already has ID
+      const text = JSON.stringify(child).toLowerCase()
+      if (text.includes('feature') || text.includes('service') || text.includes('what we')) child.props = { ...child.props, id: 'services' }
+      else if (text.includes('testimonial') || text.includes('client') || text.includes('what.*say')) child.props = { ...child.props, id: 'testimonials' }
+      else if (text.includes('subscribe') || text.includes('waitlist') || text.includes('contact') || text.includes('get started')) child.props = { ...child.props, id: 'contact' }
+      else if (text.includes('stat') || text.includes('value') || (i === 1 && text.includes('flex'))) child.props = { ...child.props, id: 'about' }
+    })
+  }
+
+  const bodyHtml = renderComponents(contentJson, T)
 
   const isDark = T.bg.startsWith('#0') || T.bg.startsWith('#1') || T.bg.startsWith('#09')
+
+  // Detect lead capture mode (single section with form)
+  const isLeadCapture = contentJson && contentJson.children && contentJson.children.length <= 2 &&
+    JSON.stringify(contentJson).includes('"subscribe_form"')
+  let globalCss = ''
+  if (isLeadCapture) {
+    // Add full-height body styling for lead capture pages
+    globalCss += `
+    body { min-height: 100vh; display: flex; flex-direction: column; }
+    .lead-capture-page { flex: 1; }
+  `
+  }
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -224,7 +296,15 @@ function renderPage({ company, site, page }) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${escapeHtml(seo.title || page.title)} | ${escapeHtml(company.name)}</title>
 ${seo.description ? `<meta name="description" content="${escapeAttr(seo.description)}">` : ''}
-${seo.og_image ? `<meta property="og:image" content="${escapeAttr(seo.og_image)}">` : ''}
+${seo.og_image ? `<meta property="og:image" content="${escapeAttr(seo.og_image)}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="${escapeAttr(seo.og_image)}">
+<meta name="twitter:title" content="${escapeAttr(seo.title || page.title)}">
+${seo.description ? `<meta name="twitter:description" content="${escapeAttr(seo.description)}">` : ''}` : '<meta name="twitter:card" content="summary">'}
+${seo.og_url ? `<meta property="og:url" content="${escapeAttr(seo.og_url)}">` : ''}
+<meta property="og:type" content="website">
+<meta property="og:title" content="${escapeAttr(seo.title || page.title)}">
+${seo.description ? `<meta property="og:description" content="${escapeAttr(seo.description)}">` : ''}
 ${T.fontImport ? `<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="${T.fontImport}" rel="stylesheet">` : ''}
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -243,12 +323,83 @@ ${T.fontImport ? `<link rel="preconnect" href="https://fonts.googleapis.com"><li
   body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
   a { color: var(--primary); }
   img { max-width: 100%; }
+  /* ── Scroll reveal ── */
+  .revealed { opacity: 1 !important; transform: translateY(0) !important; }
+  /* ── Mobile base ── */
+  @media (max-width: 768px) {
+    section { padding: 3rem 1.25rem !important; }
+    h1 { font-size: clamp(2rem, 8vw, 3.5rem) !important; }
+    h2 { font-size: clamp(1.5rem, 6vw, 2.2rem) !important; }
+    .page > div[style*="max-width:820px"], .page > div[style*="max-width: 820px"] { padding: 0 1.25rem !important; margin: 3rem auto !important; }
+    [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+    [style*="display:flex"][style*="gap:3rem"] { flex-direction: column !important; gap: 1.5rem !important; align-items: center !important; }
+    [style*="padding:1.5rem 2.5rem"] { padding: 1rem 1.25rem !important; }
+  }
   ${T.customCss || ''}
+  ${globalCss}
 </style>
 </head>
 <body>
 ${bodyHtml}
+
+<!-- Contact modal for dead links -->
+<div id="contact-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;align-items:center;justify-content:center;padding:1rem">
+  <div style="background:${T.bg};border:1px solid ${T.border};border-radius:${T.radiusLg};padding:2.5rem;max-width:460px;width:100%;position:relative">
+    <button onclick="document.getElementById('contact-modal').style.display='none'" style="position:absolute;top:1rem;right:1rem;background:none;border:none;cursor:pointer;opacity:0.5;color:${T.text};font-size:1.25rem">✕</button>
+    <h3 style="font-family:${T.fontHeading};font-size:1.5rem;font-weight:${T.headingWeight};margin-bottom:0.5rem">Get in touch</h3>
+    <p style="opacity:0.6;margin-bottom:1.5rem;font-size:0.95rem">Fill in your details and we'll get back to you shortly.</p>
+    <form id="contact-form" style="display:flex;flex-direction:column;gap:1rem">
+      <input name="name" placeholder="Your name" required style="padding:0.8rem 1rem;border:1px solid ${T.border};border-radius:${T.radius};background:${T.cardBg};color:${T.text};font-size:0.95rem;outline:none;font-family:inherit">
+      <input name="email" type="email" placeholder="Email address" required style="padding:0.8rem 1rem;border:1px solid ${T.border};border-radius:${T.radius};background:${T.cardBg};color:${T.text};font-size:0.95rem;outline:none;font-family:inherit">
+      <textarea name="message" placeholder="How can we help?" rows="3" style="padding:0.8rem 1rem;border:1px solid ${T.border};border-radius:${T.radius};background:${T.cardBg};color:${T.text};font-size:0.95rem;outline:none;font-family:inherit;resize:vertical"></textarea>
+      <button type="submit" style="background:${T.primary};color:#fff;padding:0.85rem;border:none;border-radius:${T.btnRadius};font-weight:600;cursor:pointer;font-size:1rem;font-family:inherit">Send Message</button>
+    </form>
+  </div>
+</div>
+
 <script>
+// Contact modal trigger
+document.querySelectorAll('a[href="#contact"],a[href="#waitlist"],a[href="#cta"],a[href="#"]').forEach(a => {
+  if (!a.closest('#contact-modal') && !a.dataset.noModal) {
+    a.addEventListener('click', function(e) {
+      const target = this.getAttribute('href')
+      // Check if there's a real section with that ID
+      if (target && target !== '#' && document.querySelector(target)) return
+      e.preventDefault()
+      const modal = document.getElementById('contact-modal')
+      modal.style.display = 'flex'
+    })
+  }
+})
+
+// Close modal on backdrop click
+document.getElementById('contact-modal').addEventListener('click', function(e) {
+  if (e.target === this) this.style.display = 'none'
+})
+
+// Contact form submit
+document.getElementById('contact-form').addEventListener('submit', async function(e) {
+  e.preventDefault()
+  const btn = this.querySelector('[type="submit"]')
+  btn.disabled = true; btn.textContent = 'Sending...'
+  const data = Object.fromEntries(new FormData(this))
+  try {
+    await fetch('/contact', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) })
+    this.innerHTML = '<p style="text-align:center;padding:1rem;color:${T.primary}">✓ Message sent! We\\'ll be in touch soon.</p>'
+  } catch(err) {
+    btn.disabled = false; btn.textContent = 'Send Message'
+  }
+})
+
+// Scroll reveal animations
+const revealEls = document.querySelectorAll('.scroll-reveal, section, .card-reveal')
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('revealed'); observer.unobserve(e.target) }
+  })
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' })
+revealEls.forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(20px)'; el.style.transition = 'opacity 0.6s ease, transform 0.6s ease'; observer.observe(el) })
+
 // Analytics ping
 fetch('/ping', { method: 'POST', headers: {'Content-Type':'application/json'},
   body: JSON.stringify({ path: window.location.pathname, referrer: document.referrer })
@@ -302,12 +453,38 @@ function renderComponents(node, T) {
 
   switch (type) {
     // ── Layout ──────────────────────────────────────────────────────────────
-    case 'nav': return `<nav style="display:flex;justify-content:space-between;align-items:center;padding:1.5rem 2.5rem;border-bottom:1px solid ${T.navBorder};position:sticky;top:0;z-index:100;background:${T.bg};${props.style||''}">
-  <div style="font-weight:${T.headingWeight};font-size:1.25rem;font-family:${T.fontHeading};color:${pc};${T.headingTracking}">${escapeHtml(props.brand||'')}</div>
-  <div style="display:flex;gap:1.25rem;align-items:center">${childHtml}</div>
-</nav>`
+    case 'nav': {
+      const navId = `nav_${Math.random().toString(36).slice(2,7)}`
+      return `<nav style="display:flex;justify-content:space-between;align-items:center;padding:1rem 2rem;border-bottom:1px solid ${T.navBorder};position:sticky;top:0;z-index:100;background:${T.bg};${props.style||''}">
+  <div style="font-weight:${T.headingWeight};font-size:1.1rem;font-family:${T.fontHeading};color:${pc};${T.headingTracking};white-space:nowrap">${escapeHtml(props.brand||'')}</div>
+  
+  <!-- Desktop nav -->
+  <div class="${navId}-desktop" style="display:flex;gap:1.25rem;align-items:center">${childHtml}</div>
+  
+  <!-- Mobile hamburger -->
+  <button class="${navId}-btn" onclick="document.getElementById('${navId}').style.display=document.getElementById('${navId}').style.display==='flex'?'none':'flex'"
+    style="display:none;background:none;border:none;cursor:pointer;padding:0.25rem;color:${T.text}">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+  
+  <!-- Mobile menu -->
+  <div id="${navId}" style="display:none;flex-direction:column;gap:0;position:absolute;top:100%;left:0;right:0;background:${T.bg};border-bottom:1px solid ${T.navBorder};padding:1rem 2rem;z-index:99">
+    ${childHtml}
+  </div>
+</nav>
+<style>
+  @media (max-width: 768px) {
+    .${navId}-desktop { display: none !important; }
+    .${navId}-btn { display: block !important; }
+    #${navId} a { display: block; padding: 0.75rem 0; border-bottom: 1px solid ${T.borderSubtle}; font-size: 1rem; }
+    #${navId} a:last-child { border-bottom: none; }
+  }
+</style>`
+    }
 
-    case 'section': return `<section style="max-width:${props.max_width||'1100px'};margin:${props.margin||'0 auto'};padding:${props.padding||T.sectionPadding};${props.style||''}">${childHtml}</section>`
+    case 'section': return `<section${props.id ? ` id="${escapeAttr(props.id)}"` : ''} style="max-width:${props.max_width||'1100px'};margin:${props.margin||'0 auto'};padding:${props.padding||T.sectionPadding};${props.style||''}">${childHtml}</section>`
 
     case 'hero': {
       const align = props.align || T.heroAlign
@@ -324,10 +501,26 @@ function renderComponents(node, T) {
           subtitleHtml = `<p style="${baseStyle}">${escapeHtml(props.subtitle)}</p>`
         }
       }
-      return `<div style="text-align:${align};max-width:820px;${align==='center'?'margin:5rem auto':'margin:5rem 0'};padding:0 2rem;${props.style||''}">
+      // Render bullets if provided
+      const bulletsHtml = Array.isArray(props.bullets) && props.bullets.length
+        ? `<ul style="list-style:none;padding:0;margin:0 auto 2rem;max-width:520px;text-align:left;display:inline-block">${props.bullets.map((b) => `<li style="display:flex;align-items:flex-start;gap:0.6rem;margin-bottom:0.6rem;font-size:1rem;opacity:0.9"><span style="color:${pc};font-size:1.1rem;line-height:1.4">✓</span><span>${escapeHtml(b)}</span></li>`).join('')}</ul>`
+        : ''
+
+      // Inline subscribe form if show_form is true
+      const heroFormHtml = props.show_form
+        ? `<form data-subscribe-form style="display:flex;flex-direction:column;gap:0.75rem;max-width:440px;margin:0 auto;width:100%">
+            <input type="text" name="name" placeholder="Your name" required style="padding:0.875rem 1rem;border:1px solid rgba(255,255,255,0.25);border-radius:8px;background:rgba(255,255,255,0.12);color:inherit;font-size:1rem;width:100%;box-sizing:border-box;font-family:inherit">
+            <input type="email" name="email" placeholder="Your email" required style="padding:0.875rem 1rem;border:1px solid rgba(255,255,255,0.25);border-radius:8px;background:rgba(255,255,255,0.12);color:inherit;font-size:1rem;width:100%;box-sizing:border-box;font-family:inherit">
+            <button type="submit" style="padding:0.95rem;background:${pc};color:#fff;border:none;border-radius:${T.btnRadius};font-size:1rem;font-weight:700;cursor:pointer;width:100%;font-family:inherit;letter-spacing:0.01em">${escapeHtml(props.cta_label || 'Get Started')}</button>
+           </form>`
+        : ''
+
+      return `<div style="text-align:${align};max-width:860px;${align==='center'?'margin:5rem auto':'margin:5rem 0'};padding:0 2rem;${props.style||''}">
   ${props.eyebrow ? `<p style="${T.eyebrowStyle}color:${pc};margin-bottom:1.25rem">${escapeHtml(props.eyebrow)}</p>` : ''}
   ${props.headline ? `<h1 style="font-size:clamp(2.2rem,5.5vw,4rem);font-weight:${T.headingWeight};line-height:1.1;${T.headingTracking};font-family:${T.fontHeading};margin-bottom:1.5rem">${escapeHtml(props.headline)}</h1>` : ''}
   ${subtitleHtml}
+  ${bulletsHtml}
+  ${heroFormHtml}
   ${childHtml}
 </div>`
     }
@@ -336,7 +529,14 @@ function renderComponents(node, T) {
 
     case 'flex': return `<div style="display:flex;gap:${props.gap||'1rem'};align-items:${props.align||'center'};justify-content:${props.justify||'flex-start'};flex-wrap:${props.wrap||'wrap'};${props.style||''}">${childHtml}</div>`
 
-    case 'card': return `<div style="background:${T.cardBg};border:1px solid ${T.borderSubtle};border-radius:${T.radiusLg};padding:${props.padding||'2rem'};box-shadow:${T.shadow};${props.style||''}">${childHtml}</div>`
+    case 'card': {
+      const cardInner = childHtml || [
+        props.icon ? `<div style="font-size:2rem;margin-bottom:1rem">${escapeHtml(props.icon)}</div>` : '',
+        props.title ? `<h3 style="font-size:1.05rem;font-weight:700;font-family:${T.fontHeading};margin-bottom:0.5rem">${escapeHtml(props.title)}</h3>` : '',
+        props.description ? `<p style="font-size:0.95rem;opacity:0.8;line-height:1.7;margin:0">${escapeHtml(props.description)}</p>` : '',
+      ].join('')
+      return `<div style="background:${T.cardBg};border:1px solid ${T.borderSubtle};border-radius:${T.radiusLg};padding:${props.padding||'2rem'};box-shadow:${T.shadow};${props.style||''}">${cardInner}</div>`
+    }
 
     case 'divider': return `<hr style="border:none;border-top:1px solid ${T.borderSubtle};margin:${props.margin||'3rem 0'}">`
 
@@ -368,14 +568,16 @@ function renderComponents(node, T) {
     case 'link': return `<a href="${escapeAttr(props.href||'#')}" style="${props.style||''}">${childHtml||escapeHtml(props.label||props.text||'')}</a>`
 
     // ── Forms ────────────────────────────────────────────────────────────────
-    case 'subscribe_form': return `<form data-subscribe-form style="display:flex;gap:0.75rem;max-width:${props.max_width||'440px'};margin:${props.margin||'0 auto'};flex-wrap:wrap;${props.style||''}">
-  <input data-email type="email" placeholder="${escapeAttr(props.placeholder||'Enter your email')}" required
-    style="flex:1;min-width:200px;background:${inputBg};border:1px solid ${inputBorder};border-radius:${T.radius};padding:0.85rem 1.1rem;color:inherit;font-size:0.95rem;font-family:inherit">
-  ${props.name_field ? `<input data-name type="text" placeholder="${escapeAttr(props.name_placeholder||'Your name')}" style="flex:1;min-width:160px;background:${inputBg};border:1px solid ${inputBorder};border-radius:${T.radius};padding:0.85rem 1.1rem;color:inherit;font-family:inherit">` : ''}
-  <button type="submit" style="background:${pc};color:${btnTextColor};border:none;border-radius:${T.btnRadius};padding:0.85rem 1.6rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;font-size:0.95rem">
-    ${escapeHtml(props.button_label||'Get Started')}
-  </button>
-</form>`
+    case 'subscribe_form': {
+  const showName = props.show_name !== false
+  const showWhatsapp = props.show_whatsapp === true
+  return `<form data-subscribe-form style="display:flex;flex-direction:column;gap:0.75rem;max-width:${props.max_width||'440px'};margin:${props.margin||'0 auto'};width:100%;${props.style||''}">
+    ${showName ? `<input type="text" name="name" placeholder="Your name" required style="padding:0.875rem 1rem;border:1px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(255,255,255,0.1);color:inherit;font-size:1rem;width:100%;box-sizing:border-box;font-family:inherit">` : ''}
+    <input type="email" name="email" placeholder="${escapeAttr(props.placeholder||'Your email')}" required style="padding:0.875rem 1rem;border:1px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(255,255,255,0.1);color:inherit;font-size:1rem;width:100%;box-sizing:border-box;font-family:inherit">
+    ${showWhatsapp ? `<input type="tel" name="whatsapp" placeholder="WhatsApp number (optional)" style="padding:0.875rem 1rem;border:1px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(255,255,255,0.1);color:inherit;font-size:1rem;width:100%;box-sizing:border-box;font-family:inherit">` : ''}
+    <button type="submit" style="padding:0.875rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;width:100%;font-family:inherit">${escapeHtml(props.button_label||'Subscribe')}</button>
+  </form>`
+}
 
     case 'contact_form': return `<form action="/contact" method="POST" style="display:flex;flex-direction:column;gap:1rem;max-width:${props.max_width||'500px'};${props.style||''}">
   <input name="name" type="text" placeholder="Your name" style="background:${inputBg};border:1px solid ${inputBorder};border-radius:${T.radius};padding:0.85rem 1.1rem;color:inherit;font-family:inherit">
@@ -385,12 +587,17 @@ function renderComponents(node, T) {
 </form>`
 
     // ── Features / Pricing ───────────────────────────────────────────────────
-    case 'feature': return `<div style="padding:${props.padding||'0'};${props.style||''}">
-  ${props.icon ? `<div style="font-size:2rem;margin-bottom:1.1rem">${escapeHtml(props.icon)}</div>` : ''}
+    case 'feature': {
+      // Resolve icon: use title+description as keyword context if icon is generic emoji
+      const iconContext = (props.icon || '') + ' ' + (props.title || '') + ' ' + (props.description || '')
+      const featureIcon = iconSvg(iconContext, T.statValueColor || pc, 28)
+      return `<div style="padding:${props.padding||'0'};${props.style||''}">
+  ${props.icon !== undefined ? `<div style="margin-bottom:1.25rem;opacity:0.9">${featureIcon}</div>` : ''}
   ${props.title ? `<h3 style="font-size:1.05rem;font-weight:600;font-family:${T.fontHeading};margin-bottom:0.6rem">${escapeHtml(props.title)}</h3>` : ''}
   ${props.description ? `<p style="opacity:0.7;line-height:1.7;font-size:0.95rem">${escapeHtml(props.description)}</p>` : ''}
   ${childHtml}
 </div>`
+    }
 
     case 'pricing_card': return `<div style="background:${props.featured?T.muted:T.cardBg};border:${props.featured?`2px solid ${pc}`:`1px solid ${T.borderSubtle}`};border-radius:${T.radiusLg};padding:2.5rem;box-shadow:${props.featured?T.shadow:'none'};${props.style||''}">
   ${props.plan ? `<p style="${T.eyebrowStyle}color:${pc};margin-bottom:0.75rem">${escapeHtml(props.plan)}</p>` : ''}
@@ -438,6 +645,80 @@ function renderComponents(node, T) {
     ${props.copyright ? `<p style="opacity:0.35;font-size:0.82rem;margin-top:2rem">${escapeHtml(props.copyright)}</p>` : ''}
   </div>
 </footer>`
+
+    // ── How It Works (numbered steps) ────────────────────────────────────────
+    case 'steps': {
+      const steps = props.steps || []
+      return `<div style="${props.style||''}">
+        ${steps.map((step, i) => `
+          <div class="scroll-reveal" style="display:flex;gap:2rem;align-items:flex-start;margin-bottom:${i < steps.length-1 ? '3rem' : '0'};${i % 2 === 1 ? 'flex-direction:row-reverse' : ''}">
+            <div style="flex-shrink:0;width:3.5rem;height:3.5rem;border-radius:50%;background:${pc};color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;font-family:${T.fontHeading};margin-top:0.25rem">${String(i+1).padStart(2,'0')}</div>
+            <div>
+              <h3 style="font-size:1.15rem;font-weight:600;font-family:${T.fontHeading};margin-bottom:0.5rem;${T.headingTracking}">${escapeHtml(step.title||'')}</h3>
+              <p style="opacity:0.7;line-height:1.75;font-size:0.95rem;max-width:520px">${escapeHtml(step.description||'')}</p>
+            </div>
+          </div>
+          ${i < steps.length-1 ? `<div style="width:1px;height:2rem;background:${T.borderSubtle};margin-left:1.75rem;margin-bottom:0"></div>` : ''}
+        `).join('')}
+      </div>`
+    }
+
+    // ── Comparison table ─────────────────────────────────────────────────────
+    case 'comparison': {
+      const rows = props.rows || []
+      const col1 = props.col1 || 'Traditional'
+      const col2 = props.col2 || 'Us'
+      return `<div class="scroll-reveal" style="overflow-x:auto;${props.style||''}">
+        <table style="width:100%;border-collapse:collapse;font-size:0.95rem">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:1rem 1.5rem;border-bottom:1px solid ${T.border};opacity:0.5;font-weight:500"></th>
+              <th style="text-align:center;padding:1rem 1.5rem;border-bottom:1px solid ${T.border};opacity:0.6;font-weight:500">${escapeHtml(col1)}</th>
+              <th style="text-align:center;padding:1rem 1.5rem;border-bottom:1px solid ${T.border};color:${pc};font-weight:700;background:${T.muted};border-radius:${T.radius} ${T.radius} 0 0">${escapeHtml(col2)}</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map((row, i) => `
+              <tr style="border-bottom:1px solid ${T.borderSubtle}">
+                <td style="padding:0.9rem 1.5rem;font-weight:500">${escapeHtml(row.label||'')}</td>
+                <td style="text-align:center;padding:0.9rem 1.5rem;opacity:0.5">${escapeHtml(row.before||'✗')}</td>
+                <td style="text-align:center;padding:0.9rem 1.5rem;background:${T.muted};color:${pc};font-weight:600">${escapeHtml(row.after||'✓')}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>`
+    }
+
+    // ── Pricing table ─────────────────────────────────────────────────────────
+    case 'pricing': {
+      const plans = props.plans || []
+      return `<div class="scroll-reveal" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;${props.style||''}">
+        ${plans.map(plan => `
+          <div style="background:${plan.featured ? T.muted : T.cardBg};border:${plan.featured ? `2px solid ${pc}` : `1px solid ${T.borderSubtle}`};border-radius:${T.radiusLg};padding:2.5rem;position:relative;${plan.featured ? `box-shadow:${T.shadow}` : ''}">
+            ${plan.badge ? `<div style="position:absolute;top:-0.75rem;left:50%;transform:translateX(-50%);background:${pc};color:#fff;font-size:0.75rem;font-weight:700;padding:0.25rem 1rem;border-radius:999px;white-space:nowrap">${escapeHtml(plan.badge)}</div>` : ''}
+            <p style="${T.eyebrowStyle}color:${pc};margin-bottom:0.75rem">${escapeHtml(plan.name||'')}</p>
+            <div style="font-size:2.75rem;font-weight:${T.headingWeight};font-family:${T.fontHeading};margin:0.5rem 0;${T.headingTracking}">${escapeHtml(plan.price||'')}<span style="font-size:1rem;font-weight:400;opacity:0.5">${escapeHtml(plan.period||'/mo')}</span></div>
+            <p style="opacity:0.6;margin-bottom:1.75rem;font-size:0.9rem;line-height:1.6">${escapeHtml(plan.description||'')}</p>
+            <ul style="list-style:none;margin-bottom:2rem">
+              ${(plan.features||[]).map(f => `<li style="display:flex;align-items:flex-start;gap:0.6rem;margin-bottom:0.6rem;font-size:0.9rem"><span style="color:${pc};flex-shrink:0">✓</span><span style="opacity:0.8">${escapeHtml(f)}</span></li>`).join('')}
+            </ul>
+            <a href="${escapeAttr(plan.cta_href||'#contact')}" style="display:block;text-align:center;background:${plan.featured ? pc : 'transparent'};color:${plan.featured ? '#fff' : pc};border:2px solid ${pc};padding:0.85rem;border-radius:${T.btnRadius};font-weight:600;text-decoration:none;font-size:0.95rem;transition:opacity 0.2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">${escapeHtml(plan.cta||'Get Started')}</a>
+          </div>
+        `).join('')}
+      </div>`
+    }
+
+    // ── Logo bar (trust signals) ──────────────────────────────────────────────
+    case 'logo_bar': {
+      const logos = props.logos || []
+      return `<div class="scroll-reveal" style="text-align:center;${props.style||''}">
+        ${props.label ? `<p style="opacity:0.4;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1.5rem">${escapeHtml(props.label)}</p>` : ''}
+        <div style="display:flex;gap:2.5rem;align-items:center;justify-content:center;flex-wrap:wrap;opacity:0.4">
+          ${logos.map(l => `<span style="font-size:1rem;font-weight:600;font-family:${T.fontHeading};letter-spacing:-0.02em">${escapeHtml(typeof l === 'string' ? l : l.name || '')}</span>`).join('')}
+        </div>
+      </div>`
+    }
 
     // ── Raw HTML ─────────────────────────────────────────────────────────────
     case 'html': return props.content || ''
@@ -630,4 +911,209 @@ function escapeAttr(str) {
   return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;')
 }
 
-module.exports = { renderPage, THEMES }
+// ─── Blog renderers ───────────────────────────────────────────────────────────
+
+function renderBlogPost(page, site, company) {
+  const T = resolveTheme(site.theme || {})
+  const content = page.content_json || {}
+  const props = content.props || {}
+  const children = content.children || []
+
+  const title = props.title || page.title || 'Blog Post'
+  const metaDesc = props.meta_description || ''
+  const readingTime = props.reading_time || 5
+  const ctaText = props.cta_text || `Get in touch with ${company.name} today.`
+  const ctaUrl = props.cta_url || '/'
+
+  // Render markdown children
+  let articleBody = ''
+  for (const child of children) {
+    if (child.type === 'markdown' && child.props?.content) {
+      articleBody += marked.parse(child.props.content)
+    }
+  }
+
+  const isDark = T.bg.startsWith('#0') || T.bg.startsWith('#1') || T.bg.startsWith('#09')
+  const publishedDate = page.published_at ? new Date(page.published_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }) : ''
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${escapeHtml(title)} | ${escapeHtml(company.name)}</title>
+${metaDesc ? `<meta name="description" content="${escapeAttr(metaDesc)}">` : ''}
+<meta property="og:title" content="${escapeAttr(title)}">
+${metaDesc ? `<meta property="og:description" content="${escapeAttr(metaDesc)}">` : ''}
+${seo.og_image ? `<meta property="og:image" content="${escapeAttr(seo.og_image)}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="${escapeAttr(seo.og_image)}">
+<meta name="twitter:title" content="${escapeAttr(title)}">
+${metaDesc ? `<meta name="twitter:description" content="${escapeAttr(metaDesc)}">` : ''}` : '<meta name="twitter:card" content="summary">'}
+${seo.og_url ? `<meta property="og:url" content="${escapeAttr(seo.og_url)}">` : ''}
+<meta property="og:type" content="website">
+${T.fontImport ? `<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="${T.fontImport}" rel="stylesheet">` : ''}
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --primary: ${T.primary}; --bg: ${T.bg}; --text: ${T.text}; --font: ${T.fontBody}; --radius: ${T.radius}; --border: ${T.borderSubtle}; --card-bg: ${T.cardBg}; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+  a { color: var(--primary); }
+  nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; border-bottom: 1px solid ${T.navBorder}; position: sticky; top: 0; z-index: 100; background: ${T.bg}; }
+  nav a { color: ${T.text}; text-decoration: none; opacity: 0.75; font-size: 0.9rem; }
+  nav a:hover { opacity: 1; }
+  .blog-hero { max-width: 780px; margin: 3.5rem auto 2.5rem; padding: 0 2rem; }
+  .blog-hero h1 { font-family: ${T.fontHeading}; font-size: clamp(1.9rem, 4vw, 2.9rem); font-weight: ${T.headingWeight}; line-height: 1.15; ${T.headingTracking}; margin-bottom: 1.25rem; }
+  .blog-meta { font-size: 0.88rem; opacity: 0.6; margin-bottom: 0.5rem; display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center; }
+  .blog-meta span { display: flex; align-items: center; gap: 0.3rem; }
+  .blog-desc { font-size: 1.1rem; opacity: 0.75; line-height: 1.75; margin-top: 1rem; border-left: 3px solid ${T.primary}; padding-left: 1.25rem; }
+  .blog-body { max-width: 780px; margin: 0 auto 4rem; padding: 0 2rem; }
+  .blog-body h2 { font-family: ${T.fontHeading}; font-size: clamp(1.4rem, 2.5vw, 1.8rem); font-weight: ${T.headingWeight}; line-height: 1.2; ${T.headingTracking}; margin: 2.5rem 0 1rem; }
+  .blog-body h3 { font-family: ${T.fontHeading}; font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.75rem; }
+  .blog-body p { margin-bottom: 1.4rem; opacity: 0.88; font-size: 1.05rem; }
+  .blog-body ul, .blog-body ol { margin: 1rem 0 1.4rem 1.5rem; }
+  .blog-body li { margin-bottom: 0.5rem; opacity: 0.88; font-size: 1.05rem; }
+  .blog-body strong { font-weight: 700; }
+  .blog-body em { font-style: italic; opacity: 0.9; }
+  .blog-body blockquote { border-left: 3px solid ${T.primary}; padding: 0.75rem 1.25rem; margin: 1.5rem 0; opacity: 0.8; font-style: italic; background: ${T.cardBg}; border-radius: 0 ${T.radius} ${T.radius} 0; }
+  .blog-body code { background: ${T.cardBg}; border: 1px solid ${T.borderSubtle}; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+  .blog-body pre { background: ${T.cardBg}; border: 1px solid ${T.borderSubtle}; padding: 1.25rem; border-radius: ${T.radius}; overflow-x: auto; margin-bottom: 1.4rem; }
+  .blog-body pre code { background: none; border: none; padding: 0; }
+  .blog-cta { max-width: 780px; margin: 0 auto 5rem; padding: 0 2rem; }
+  .blog-cta-inner { background: ${T.muted}; border: 1px solid ${T.border}; border-radius: ${T.radiusLg}; padding: 2.5rem; text-align: center; }
+  .blog-cta-inner h3 { font-family: ${T.fontHeading}; font-size: 1.4rem; font-weight: ${T.headingWeight}; margin-bottom: 0.75rem; }
+  .blog-cta-inner p { opacity: 0.75; margin-bottom: 1.5rem; }
+  .cta-btn { display: inline-block; background: ${T.primary}; color: ${isDark ? '#000' : '#fff'}; padding: 0.85rem 2.2rem; border-radius: ${T.btnRadius}; font-weight: 700; text-decoration: none; font-size: 1rem; transition: opacity 0.2s; }
+  .cta-btn:hover { opacity: 0.85; }
+  footer { border-top: 1px solid ${T.borderSubtle}; padding: 2rem; text-align: center; font-size: 0.85rem; opacity: 0.5; margin-top: 2rem; }
+  @media (max-width: 640px) { .blog-hero, .blog-body, .blog-cta { padding: 0 1.25rem; } .blog-hero { margin-top: 2.5rem; } }
+  ${T.customCss || ''}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" style="font-weight:700;font-size:1.05rem;font-family:${T.fontHeading};color:${T.primary};${T.headingTracking}">${escapeHtml(company.name)}</a>
+  <div style="display:flex;gap:1.25rem;align-items:center">
+    <a href="/blog">Blog</a>
+    <a href="/#contact" style="background:${T.primary};color:${isDark ? '#000' : '#fff'};padding:0.45rem 1.1rem;border-radius:${T.btnRadius};font-weight:600;font-size:0.85rem">Contact</a>
+  </div>
+</nav>
+
+<div class="blog-hero">
+  <div class="blog-meta">
+    ${publishedDate ? `<span>📅 ${escapeHtml(publishedDate)}</span>` : ''}
+    <span>⏱ ${readingTime} min read</span>
+    <span>✍️ By ${escapeHtml(company.name)} AI Agent</span>
+  </div>
+  <h1>${escapeHtml(title)}</h1>
+  ${metaDesc ? `<p class="blog-desc">${escapeHtml(metaDesc)}</p>` : ''}
+</div>
+
+<article class="blog-body">
+  ${articleBody}
+</article>
+
+<div class="blog-cta">
+  <div class="blog-cta-inner">
+    <h3>Ready to take the next step?</h3>
+    <p>${escapeHtml(ctaText)}</p>
+    <a href="${escapeAttr(ctaUrl)}" class="cta-btn">Get a Free Consultation →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/blog" style="color:${T.primary};text-decoration:none;margin-right:1.5rem">← All Articles</a>
+  © ${new Date().getFullYear()} ${escapeHtml(company.name)} · All rights reserved
+</footer>
+
+<script>
+fetch('/ping', { method: 'POST', headers: {'Content-Type':'application/json'},
+  body: JSON.stringify({ path: window.location.pathname, referrer: document.referrer })
+}).catch(()=>{});
+</script>
+</body>
+</html>`
+}
+
+function renderBlogListing(posts, site, company) {
+  const T = resolveTheme(site.theme || {})
+  const isDark = T.bg.startsWith('#0') || T.bg.startsWith('#1') || T.bg.startsWith('#09')
+
+  const cardsHtml = posts.length === 0
+    ? `<div style="grid-column:1/-1;text-align:center;padding:4rem 0;opacity:0.5">No blog posts yet — check back soon.</div>`
+    : posts.map(post => {
+        const props = post.content_json?.props || {}
+        const title = props.title || post.title || 'Untitled'
+        const excerpt = props.meta_description || ''
+        const readingTime = props.reading_time || 5
+        const date = post.published_at ? new Date(post.published_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' }) : ''
+        const slug = post.path || `/blog/${post.slug}`
+        return `<a href="${escapeAttr(slug)}" style="text-decoration:none;color:inherit;display:block">
+  <div style="background:${T.cardBg};border:1px solid ${T.borderSubtle};border-radius:${T.radiusLg};padding:2rem;height:100%;transition:transform 0.15s,box-shadow 0.15s;box-shadow:${T.shadow}" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 32px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow='${T.shadow}'">
+    <div style="font-size:0.8rem;opacity:0.5;margin-bottom:0.75rem;display:flex;gap:1rem">
+      ${date ? `<span>${escapeHtml(date)}</span>` : ''}
+      <span>⏱ ${readingTime} min read</span>
+    </div>
+    <h2 style="font-family:${T.fontHeading};font-size:1.2rem;font-weight:${T.headingWeight};line-height:1.3;${T.headingTracking};margin-bottom:0.75rem;color:${T.text}">${escapeHtml(title)}</h2>
+    ${excerpt ? `<p style="font-size:0.92rem;opacity:0.7;line-height:1.6;margin-bottom:1rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${escapeHtml(excerpt)}</p>` : ''}
+    <span style="font-size:0.88rem;font-weight:600;color:${T.primary}">Read article →</span>
+  </div>
+</a>`
+      }).join('\n')
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog | ${escapeHtml(company.name)}</title>
+<meta name="description" content="Articles, insights and updates from ${escapeHtml(company.name)}.">
+${T.fontImport ? `<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="${T.fontImport}" rel="stylesheet">` : ''}
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --primary: ${T.primary}; --bg: ${T.bg}; --text: ${T.text}; }
+  html { scroll-behavior: smooth; }
+  body { font-family: ${T.fontBody}; background: ${T.bg}; color: ${T.text}; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  a { color: ${T.primary}; }
+  nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; border-bottom: 1px solid ${T.navBorder}; position: sticky; top: 0; z-index: 100; background: ${T.bg}; }
+  nav a { color: ${T.text}; text-decoration: none; opacity: 0.75; font-size: 0.9rem; }
+  nav a:hover { opacity: 1; }
+  .blog-header { max-width: 1100px; margin: 4rem auto 3rem; padding: 0 2rem; }
+  .blog-header h1 { font-family: ${T.fontHeading}; font-size: clamp(2rem, 4vw, 3rem); font-weight: ${T.headingWeight}; ${T.headingTracking}; margin-bottom: 0.75rem; }
+  .blog-header p { opacity: 0.65; font-size: 1.05rem; }
+  .blog-grid { max-width: 1100px; margin: 0 auto 5rem; padding: 0 2rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.75rem; }
+  footer { border-top: 1px solid ${T.borderSubtle}; padding: 2rem; text-align: center; font-size: 0.85rem; opacity: 0.5; }
+  @media (max-width: 640px) { .blog-header, .blog-grid { padding: 0 1.25rem; } .blog-header { margin-top: 2.5rem; } .blog-grid { grid-template-columns: 1fr; } }
+  ${T.customCss || ''}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" style="font-weight:700;font-size:1.05rem;font-family:${T.fontHeading};color:${T.primary};${T.headingTracking}">${escapeHtml(company.name)}</a>
+  <div style="display:flex;gap:1.25rem;align-items:center">
+    <a href="/blog" style="font-weight:600;color:${T.primary}">Blog</a>
+    <a href="/#contact" style="background:${T.primary};color:${isDark ? '#000' : '#fff'};padding:0.45rem 1.1rem;border-radius:${T.btnRadius};font-weight:600;font-size:0.85rem">Contact</a>
+  </div>
+</nav>
+
+<div class="blog-header">
+  <h1>Insights &amp; Articles</h1>
+  <p>Expert perspectives from ${escapeHtml(company.name)}</p>
+</div>
+
+<div class="blog-grid">
+  ${cardsHtml}
+</div>
+
+<footer>© ${new Date().getFullYear()} ${escapeHtml(company.name)} · All rights reserved</footer>
+
+<script>
+fetch('/ping', { method: 'POST', headers: {'Content-Type':'application/json'},
+  body: JSON.stringify({ path: window.location.pathname, referrer: document.referrer })
+}).catch(()=>{});
+</script>
+</body>
+</html>`
+}
+
+module.exports = { renderPage, renderBlogPost, renderBlogListing, THEMES }

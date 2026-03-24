@@ -9,7 +9,7 @@ const express = require('express')
 const path = require('path')
 const multer = require('multer')
 const { platform, clients } = require('./db')
-const { renderPage } = require('./renderer')
+const { renderPage, renderBlogPost, renderBlogListing } = require('./renderer')
 const { uploadAsset, listAssets } = require('./storage')
 const Stripe = process.env.STRIPE_SECRET_KEY ? require('stripe')(process.env.STRIPE_SECRET_KEY) : null
 
@@ -284,6 +284,39 @@ app.post('/api/auth/login', async (req, res) => {
   res.json({ ok: false, message: 'Auth not yet implemented' })
 })
 
+// ── Blog listing ──────────────────────────────────────────────────────────────
+
+app.get('/blog', async (req, res) => {
+  try {
+    const company = await getCompany(req)
+    if (!company) return res.status(404).send(notFoundPage(req.headers['x-client-subdomain']))
+
+    const siteResult = await clients.query(
+      `SELECT s.id, s.name, s.slug, s.status, s.theme, s.seo
+       FROM sites s
+       WHERE s.company_id = $1 AND s.status = 'published'
+       ORDER BY s.created_at DESC LIMIT 1`,
+      [company.id]
+    )
+    if (!siteResult.rows.length) return res.status(404).send('<h1>Site not found</h1>')
+    const site = siteResult.rows[0]
+
+    const postsResult = await clients.query(
+      `SELECT p.id, p.slug, p.path, p.title, p.page_type, p.status, p.content_json, p.published_at
+       FROM pages p
+       WHERE p.site_id = $1 AND p.page_type = 'blog_post' AND p.status = 'published'
+       ORDER BY p.published_at DESC`,
+      [site.id]
+    )
+
+    const html = renderBlogListing(postsResult.rows, site, company)
+    res.send(html)
+  } catch (err) {
+    console.error('Blog listing error:', err)
+    res.status(500).send('<h1>Something went wrong</h1>')
+  }
+})
+
 // ── Page rendering ────────────────────────────────────────────────────────────
 
 app.get('*', async (req, res) => {
@@ -346,6 +379,33 @@ app.get('*', async (req, res) => {
 })
 
 // ── Subscribe form ────────────────────────────────────────────────────────────
+
+app.post('/contact', async (req, res) => {
+  try {
+    const company = await getCompany(req)
+    if (!company) return res.status(404).json({ error: 'Not found' })
+
+    const { name, email, message } = req.body
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ error: 'Valid email required' })
+    }
+
+    // Store as subscriber with message in custom_fields
+    await clients.query(
+      `INSERT INTO subscribers (company_id, email, name, source, custom_fields)
+       VALUES ($1, $2, $3, 'contact_form', $4)
+       ON CONFLICT (company_id, email) DO UPDATE SET 
+         name = EXCLUDED.name,
+         custom_fields = EXCLUDED.custom_fields`,
+      [company.id, email.toLowerCase().trim(), name || '', JSON.stringify({ message, submitted_at: new Date().toISOString() })]
+    )
+
+    res.json({ ok: true })
+  } catch (err) {
+    console.error('Contact error:', err)
+    res.status(500).json({ error: 'Failed to send' })
+  }
+})
 
 app.post('/subscribe', async (req, res) => {
   try {
