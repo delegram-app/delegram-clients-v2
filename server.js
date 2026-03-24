@@ -390,20 +390,64 @@ app.post('/contact', async (req, res) => {
       return res.status(400).json({ error: 'Valid email required' })
     }
 
-    // Store as subscriber with message in custom_fields
+    const cleanEmail = email.toLowerCase().trim()
+    const submittedAt = new Date().toISOString()
+
+    // Store in clients DB subscribers table
     await clients.query(
       `INSERT INTO subscribers (company_id, email, name, source, custom_fields)
        VALUES ($1, $2, $3, 'contact_form', $4)
        ON CONFLICT (company_id, email) DO UPDATE SET 
          name = EXCLUDED.name,
          custom_fields = EXCLUDED.custom_fields`,
-      [company.id, email.toLowerCase().trim(), name || '', JSON.stringify({ message, submitted_at: new Date().toISOString() })]
+      [company.id, cleanEmail, name || '', JSON.stringify({ message, submitted_at: submittedAt })]
     )
 
-    res.json({ ok: true })
+    // Also store in platform DB so it appears in dashboard leads section
+    try {
+      const tenant = await platform.query('SELECT id FROM tenants WHERE subdomain = $1', [company.slug])
+      if (tenant.rows[0]) {
+        await platform.query(
+          `INSERT INTO subscribers (tenant_id, email, name, source, notes, created_at)
+           VALUES ($1, $2, $3, 'contact_form', $4, NOW())
+           ON CONFLICT (tenant_id, email) DO UPDATE SET name = EXCLUDED.name, notes = EXCLUDED.notes`,
+          [tenant.rows[0].id, cleanEmail, name || '', message || '']
+        )
+      }
+    } catch (e) {
+      // Platform sync optional — don't fail if it errors
+      console.error('Platform lead sync error:', e.message)
+    }
+
+    // Return a proper thank you page
+    res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thank you — ${company.name || 'We'} will be in touch</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0 }
+    body { font-family: -apple-system, 'Inter', sans-serif; background: #0D1B2A; color: #E8E0D4; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+    .card { text-align: center; max-width: 480px; }
+    .icon { font-size: 3rem; margin-bottom: 1.5rem; }
+    h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 1rem; }
+    p { opacity: 0.7; line-height: 1.7; margin-bottom: 2rem; }
+    a { display: inline-block; background: #B8974A; color: #0D1B2A; padding: 0.75rem 2rem; text-decoration: none; font-weight: 600; border-radius: 2px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">✓</div>
+    <h1>Thank you${name ? ', ' + name : ''}.</h1>
+    <p>Your message has been received. Someone from ${company.name || 'our team'} will be in touch with you shortly.</p>
+    <a href="/">← Back to site</a>
+  </div>
+</body>
+</html>`)
   } catch (err) {
     console.error('Contact error:', err)
-    res.status(500).json({ error: 'Failed to send' })
+    res.status(500).send('Something went wrong. Please try again.')
   }
 })
 
@@ -424,7 +468,51 @@ app.post('/subscribe', async (req, res) => {
       [company.id, email.toLowerCase().trim(), name || '']
     )
 
-    res.json({ ok: true, message: "You're on the list!" })
+    // Also sync to platform DB for dashboard leads
+    try {
+      const tenant = await platform.query('SELECT id FROM tenants WHERE subdomain = $1', [company.slug])
+      if (tenant.rows[0]) {
+        await platform.query(
+          `INSERT INTO subscribers (tenant_id, email, name, source, created_at)
+           VALUES ($1, $2, $3, 'landing_page', NOW())
+           ON CONFLICT (tenant_id, email) DO UPDATE SET name = EXCLUDED.name`,
+          [tenant.rows[0].id, email.toLowerCase().trim(), name || '']
+        )
+      }
+    } catch (e) {
+      console.error('Platform lead sync error:', e.message)
+    }
+
+    // Check if it's a form POST (accepts HTML) or AJAX (accepts JSON)
+    const wantsJson = req.headers.accept?.includes('application/json') || req.headers['x-requested-with']
+    if (wantsJson) {
+      return res.json({ ok: true, message: "You're on the list!" })
+    }
+    res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You're in!</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0 }
+    body { font-family: -apple-system, 'Inter', sans-serif; background: #0D1B2A; color: #E8E0D4; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+    .card { text-align: center; max-width: 480px; }
+    .icon { font-size: 3rem; margin-bottom: 1.5rem; }
+    h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 1rem; }
+    p { opacity: 0.7; line-height: 1.7; margin-bottom: 2rem; }
+    a { display: inline-block; background: #B8974A; color: #0D1B2A; padding: 0.75rem 2rem; text-decoration: none; font-weight: 600; border-radius: 2px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">✓</div>
+    <h1>You're on the list!</h1>
+    <p>Thanks for signing up. We'll be in touch soon.</p>
+    <a href="/">← Back to site</a>
+  </div>
+</body>
+</html>`)
   } catch (err) {
     console.error('Subscribe error:', err)
     res.status(500).json({ error: 'Failed to subscribe' })
