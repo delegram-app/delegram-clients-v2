@@ -525,7 +525,11 @@ function renderComponents(node, T) {
 </div>`
     }
 
-    case 'grid': return `<div style="display:grid;grid-template-columns:${props.columns||'repeat(auto-fit,minmax(280px,1fr))'};gap:${props.gap||'2rem'};${props.style||''}">${childHtml}</div>`
+    case 'grid': {
+      const cols = props.columns
+      const gridCols = typeof cols === 'number' ? `repeat(${cols},1fr)` : (cols || 'repeat(auto-fit,minmax(280px,1fr))')
+      return `<div style="display:grid;grid-template-columns:${gridCols};gap:${props.gap||'2rem'};${props.style||''}">${childHtml}</div>`
+    }
 
     case 'flex': return `<div style="display:flex;gap:${props.gap||'1rem'};align-items:${props.align||'center'};justify-content:${props.justify||'flex-start'};flex-wrap:${props.wrap||'wrap'};${props.style||''}">${childHtml}</div>`
 
