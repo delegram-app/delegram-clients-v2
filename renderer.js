@@ -429,15 +429,17 @@ fetch('/ping', { method: 'POST', headers: {'Content-Type':'application/json'},
 document.querySelectorAll('[data-subscribe-form]').forEach(form => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = form.querySelector('[data-email]')?.value;
+    const email = form.querySelector('[data-email]')?.value || form.querySelector('[name="email"]')?.value;
+    const name = form.querySelector('[data-name]')?.value || form.querySelector('[name="name"]')?.value;
+    const message = form.querySelector('[name="message"]')?.value;
     if (!email) return;
     const btn = form.querySelector('[type="submit"]');
     if (btn) { btn.disabled = true; btn.textContent = 'Joining...'; }
     try {
-      const res = await fetch('/subscribe', {
+      const res = await fetch('/contact', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ email, name: form.querySelector('[data-name]')?.value })
+        body: JSON.stringify({ email, name, message })
       });
       if (res.ok) {
         form.innerHTML = \`<p style="color:${T.primary};padding:1rem;text-align:center;font-size:0.95rem">${
@@ -537,9 +539,9 @@ function renderComponents(node, T) {
       // Determine readable button text color based on primary brightness
       const btnFg = (() => { try { const h=pc.replace('#',''); const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16); return (r*299+g*587+b*114)/1000 > 155 ? '#111' : '#fff' } catch(e){return '#fff'} })()
       const heroFormHtml = props.show_form
-        ? `<form data-subscribe-form style="display:flex;flex-direction:column;gap:0.75rem;max-width:440px;${align==='center'?'margin:0 auto':'margin:0'};width:100%;text-align:left">
-            <input type="text" name="name" placeholder="Your name" required style="padding:0.875rem 1rem;border:1px solid ${T.border};border-radius:${T.radius};background:${T.cardBg};color:${T.text};font-size:1rem;width:100%;box-sizing:border-box;font-family:inherit">
-            <input type="email" name="email" placeholder="Your email" required style="padding:0.875rem 1rem;border:1px solid ${T.border};border-radius:${T.radius};background:${T.cardBg};color:${T.text};font-size:1rem;width:100%;box-sizing:border-box;font-family:inherit">
+        ? `<form data-subscribe-form action="/contact" method="POST" style="display:flex;flex-direction:column;gap:0.75rem;max-width:440px;${align==='center'?'margin:0 auto':'margin:0'};width:100%;text-align:left">
+            <input type="text" name="name" data-name placeholder="Your name" required style="padding:0.875rem 1rem;border:1px solid ${T.border};border-radius:${T.radius};background:${T.cardBg};color:${T.text};font-size:1rem;width:100%;box-sizing:border-box;font-family:inherit">
+            <input type="email" name="email" data-email placeholder="Your email" required style="padding:0.875rem 1rem;border:1px solid ${T.border};border-radius:${T.radius};background:${T.cardBg};color:${T.text};font-size:1rem;width:100%;box-sizing:border-box;font-family:inherit">
             <button type="submit" style="padding:0.95rem;background:${pc};color:${btnFg};border:none;border-radius:${T.btnRadius};font-size:1rem;font-weight:700;cursor:pointer;width:100%;font-family:inherit;letter-spacing:0.01em">${escapeHtml(props.cta_label || 'Get Started')}</button>
            </form>`
         : ''
