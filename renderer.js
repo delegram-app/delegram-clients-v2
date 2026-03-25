@@ -339,6 +339,19 @@ ${T.fontImport ? `<link rel="preconnect" href="https://fonts.googleapis.com"><li
 </style>
 </head>
 <body>
+<!-- Native POST fallback: show thank-you banner if redirected back with ?submitted=1 -->
+<script>
+if (window.location.search.includes('submitted=1')) {
+  document.addEventListener('DOMContentLoaded', function() {
+    const banner = document.createElement('div')
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:${T.primary};color:#fff;text-align:center;padding:1rem;font-size:1rem;font-weight:600;'
+    banner.textContent = "✓ Message received — we'll be in touch shortly."
+    document.body.prepend(banner)
+    setTimeout(()=>{ banner.style.transition='opacity 0.5s'; banner.style.opacity='0'; setTimeout(()=>banner.remove(),500) }, 4000)
+    history.replaceState(null,'',window.location.pathname)
+  })
+}
+</script>
 ${bodyHtml}
 
 <!-- Contact modal for dead links -->

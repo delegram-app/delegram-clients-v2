@@ -419,10 +419,18 @@ app.post('/contact', async (req, res) => {
       console.error('Platform lead sync error:', e.message)
     }
 
-    res.json({ ok: true })
+    // If native form POST (not AJAX), redirect back with success param
+    const isAjax = req.headers['content-type']?.includes('application/json') || req.headers['x-requested-with'] === 'XMLHttpRequest'
+    if (isAjax) {
+      res.json({ ok: true })
+    } else {
+      res.redirect('/?submitted=1')
+    }
   } catch (err) {
     console.error('Contact error:', err)
-    res.status(500).send('Something went wrong. Please try again.')
+    const isAjax = req.headers['content-type']?.includes('application/json')
+    if (isAjax) res.status(500).json({ error: 'Something went wrong' })
+    else res.redirect('/?error=1')
   }
 })
 
