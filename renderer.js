@@ -322,6 +322,10 @@ ${T.fontImport ? `<link rel="preconnect" href="https://fonts.googleapis.com"><li
   body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
   a { color: var(--primary); }
   img { max-width: 100%; }
+  /* ── Global input readability — always visible regardless of section background ── */
+  input, textarea, select { color-scheme: light; }
+  [data-subscribe-form] input, [data-subscribe-form] textarea { background: rgba(255,255,255,0.92) !important; color: #111 !important; border: 1px solid rgba(255,255,255,0.6) !important; }
+  [data-subscribe-form] input::placeholder, [data-subscribe-form] textarea::placeholder { color: rgba(0,0,0,0.45) !important; }
   /* ── Scroll reveal ── */
   .revealed { opacity: 1 !important; transform: translateY(0) !important; }
   /* ── Mobile base ── */
@@ -437,6 +441,19 @@ revealEls.forEach(el => { el.style.opacity = '0'; el.style.transform = 'translat
 fetch('/ping', { method: 'POST', headers: {'Content-Type':'application/json'},
   body: JSON.stringify({ path: window.location.pathname, referrer: document.referrer })
 }).catch(()=>{});
+
+// Patch any forms missing action/method (old DB-stored pages)
+// Note: form.action always returns full URL so check getAttribute instead
+document.querySelectorAll('form[data-subscribe-form], form#contact-form').forEach(form => {
+  const explicitAction = form.getAttribute('action');
+  if (!explicitAction || explicitAction === '#' || explicitAction === '') {
+    form.setAttribute('action', '/contact');
+    form.setAttribute('method', 'POST');
+  }
+  if ((form.getAttribute('method') || '').toUpperCase() !== 'POST') {
+    form.setAttribute('method', 'POST');
+  }
+});
 
 // Subscribe form handler
 document.querySelectorAll('[data-subscribe-form]').forEach(form => {
@@ -624,7 +641,7 @@ function renderComponents(node, T) {
     case 'subscribe_form': {
   const showName = props.show_name !== false
   const showWhatsapp = props.show_whatsapp === true
-  return `<form data-subscribe-form style="display:flex;flex-direction:column;gap:0.75rem;max-width:${props.max_width||'440px'};margin:${props.margin||'0 auto'};width:100%;${props.style||''}">
+  return `<form data-subscribe-form action="/contact" method="POST" style="display:flex;flex-direction:column;gap:0.75rem;max-width:${props.max_width||'440px'};margin:${props.margin||'0 auto'};width:100%;${props.style||''}">
     ${showName ? `<input type="text" name="name" placeholder="Your name" required style="padding:0.875rem 1rem;border:1px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(255,255,255,0.1);color:inherit;font-size:1rem;width:100%;box-sizing:border-box;font-family:inherit">` : ''}
     <input type="email" name="email" placeholder="${escapeAttr(props.placeholder||'Your email')}" required style="padding:0.875rem 1rem;border:1px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(255,255,255,0.1);color:inherit;font-size:1rem;width:100%;box-sizing:border-box;font-family:inherit">
     ${showWhatsapp ? `<input type="tel" name="whatsapp" placeholder="WhatsApp number (optional)" style="padding:0.875rem 1rem;border:1px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(255,255,255,0.1);color:inherit;font-size:1rem;width:100%;box-sizing:border-box;font-family:inherit">` : ''}
