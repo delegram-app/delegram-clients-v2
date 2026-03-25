@@ -40,14 +40,14 @@ const THEMES = {
       h1 { font-size: clamp(2.8rem, 6vw, 5rem) !important; line-height: 1.05 !important; }
       h2 { font-size: clamp(1.8rem, 3.5vw, 2.8rem) !important; }
       nav a { font-weight: 300; letter-spacing: 0.08em; font-size: 0.85rem; text-transform: uppercase; }
-      body { background: #0D1B2A; }
-      nav { background: rgba(13,27,42,0.97); border-bottom: 1px solid rgba(184,151,74,0.15); }
-      .card { background: rgba(255,255,255,0.07) !important; border: 1px solid rgba(184,151,74,0.2) !important; }
-      .card h3 { color: #E8E0D4 !important; opacity: 1 !important; }
-      .card p { color: #E8E0D4 !important; opacity: 0.85 !important; }
+      body { background: var(--bg); color: var(--text); }
+      nav { background: color-mix(in srgb, var(--bg) 97%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--primary) 25%, transparent); }
+      .card { background: color-mix(in srgb, var(--primary) 8%, var(--bg)) !important; border: 1px solid color-mix(in srgb, var(--primary) 25%, transparent) !important; }
+      .card h3 { color: var(--text) !important; opacity: 1 !important; }
+      .card p { color: var(--text) !important; opacity: 0.85 !important; }
       a[href] { text-decoration: none; }
       button, a.btn { border-radius: 0 !important; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.85rem; font-weight: 500; }
-      p { font-weight: 300; line-height: 1.9; opacity: 0.85; }
+      p { font-weight: 300; line-height: 1.9; opacity: 0.85; color: var(--text); }
       .testimonial-quote { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 1.1rem; }
     `,
   },
@@ -77,13 +77,13 @@ const THEMES = {
     sectionPadding: '5rem 2rem',
     customCss: `
       @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-      body { background: #060B18; }
+      body { background: var(--bg); color: var(--text); }
       h1,h2,h3 { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
       h1 { font-size: clamp(2.5rem, 5.5vw, 4.5rem) !important; }
-      nav { background: rgba(6,11,24,0.95); backdrop-filter: blur(16px); }
+      nav { background: color-mix(in srgb, var(--bg) 95%, transparent); backdrop-filter: blur(16px); }
       .stat-value { font-variant-numeric: tabular-nums; }
-      .card { background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)) !important; backdrop-filter: blur(8px); }
-      a[href]:not(nav a) { border-bottom: 1px solid rgba(129,140,248,0.3); }
+      .card { background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)) !important; backdrop-filter: blur(8px); color: var(--text) !important; }
+      a[href]:not(nav a) { border-bottom: 1px solid color-mix(in srgb, var(--primary) 40%, transparent); }
     `,
   },
 
