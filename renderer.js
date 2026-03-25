@@ -322,6 +322,10 @@ ${T.fontImport ? `<link rel="preconnect" href="https://fonts.googleapis.com"><li
   body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
   a { color: var(--primary); }
   img { max-width: 100%; }
+  /* ── Global input readability — always visible regardless of section background ── */
+  input, textarea, select { color-scheme: light; }
+  [data-subscribe-form] input, [data-subscribe-form] textarea { background: rgba(255,255,255,0.92) !important; color: #111 !important; border: 1px solid rgba(255,255,255,0.6) !important; }
+  [data-subscribe-form] input::placeholder, [data-subscribe-form] textarea::placeholder { color: rgba(0,0,0,0.45) !important; }
   /* ── Scroll reveal ── */
   .revealed { opacity: 1 !important; transform: translateY(0) !important; }
   /* ── Mobile base ── */
