@@ -18,8 +18,8 @@ const THEMES = {
     primary: '#B8974A',
     muted: 'rgba(184,151,74,0.12)',
     border: 'rgba(184,151,74,0.25)',
-    borderSubtle: 'rgba(232,224,212,0.08)',
-    cardBg: 'rgba(232,224,212,0.04)',
+    borderSubtle: 'rgba(184,151,74,0.2)',
+    cardBg: 'rgba(255,255,255,0.06)',  // Increased opacity for readable contrast
     navBorder: 'rgba(184,151,74,0.15)',
     radius: '0px',
     radiusLg: '2px',
@@ -31,7 +31,7 @@ const THEMES = {
     headingTracking: 'letter-spacing:0.01em',
     eyebrowStyle: 'letter-spacing:0.25em;font-size:0.7rem;text-transform:uppercase;font-weight:400;opacity:0.7;',
     statValueColor: '#B8974A',
-    shadow: '0 1px 4px rgba(0,0,0,0.6)',
+    shadow: '0 2px 12px rgba(0,0,0,0.4)',
     heroAlign: 'center',
     sectionPadding: '7rem 2rem',
     customCss: `
@@ -42,10 +42,12 @@ const THEMES = {
       nav a { font-weight: 300; letter-spacing: 0.08em; font-size: 0.85rem; text-transform: uppercase; }
       body { background: #0D1B2A; }
       nav { background: rgba(13,27,42,0.97); border-bottom: 1px solid rgba(184,151,74,0.15); }
-      .card { border: 1px solid rgba(184,151,74,0.15) !important; }
+      .card { background: rgba(255,255,255,0.07) !important; border: 1px solid rgba(184,151,74,0.2) !important; }
+      .card h3 { color: #E8E0D4 !important; opacity: 1 !important; }
+      .card p { color: #E8E0D4 !important; opacity: 0.85 !important; }
       a[href] { text-decoration: none; }
       button, a.btn { border-radius: 0 !important; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.85rem; font-weight: 500; }
-      p { font-weight: 300; line-height: 1.9; opacity: 0.8; }
+      p { font-weight: 300; line-height: 1.9; opacity: 0.85; }
       .testimonial-quote { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 1.1rem; }
     `,
   },
@@ -555,12 +557,15 @@ function renderComponents(node, T) {
     case 'flex': return `<div style="display:flex;gap:${props.gap||'1rem'};align-items:${props.align||'center'};justify-content:${props.justify||'flex-start'};flex-wrap:${props.wrap||'wrap'};${props.style||''}">${childHtml}</div>`
 
     case 'card': {
+      // Determine if background is dark (need light text) or light (need dark text)
+      const isDarkCard = T.bg.startsWith('#0') || T.bg.startsWith('#1') || T.bg.startsWith('#2') || T.cardBg.includes('rgba(255,255,255,0.0') || T.cardBg.includes('rgba(255,255,255,0.1')
+      const cardTextColor = isDarkCard ? T.text : 'inherit'
       const cardInner = childHtml || [
-        props.icon ? `<div style="font-size:2rem;margin-bottom:1rem">${escapeHtml(props.icon)}</div>` : '',
-        props.title ? `<h3 style="font-size:1.05rem;font-weight:700;font-family:${T.fontHeading};margin-bottom:0.5rem">${escapeHtml(props.title)}</h3>` : '',
-        props.description ? `<p style="font-size:0.95rem;opacity:0.8;line-height:1.7;margin:0">${escapeHtml(props.description)}</p>` : '',
+        props.icon ? `<div style="font-size:2rem;margin-bottom:1rem;color:${pc}">${escapeHtml(props.icon)}</div>` : '',
+        props.title ? `<h3 style="font-size:1.05rem;font-weight:700;font-family:${T.fontHeading};margin-bottom:0.5rem;color:${cardTextColor}">${escapeHtml(props.title)}</h3>` : '',
+        props.description ? `<p style="font-size:0.95rem;line-height:1.7;margin:0;color:${cardTextColor};opacity:0.85">${escapeHtml(props.description)}</p>` : '',
       ].join('')
-      return `<div style="background:${T.cardBg};border:1px solid ${T.borderSubtle};border-radius:${T.radiusLg};padding:${props.padding||'2rem'};box-shadow:${T.shadow};${props.style||''}">${cardInner}</div>`
+      return `<div style="background:${T.cardBg};border:1px solid ${T.borderSubtle};border-radius:${T.radiusLg};padding:${props.padding||'2rem'};box-shadow:${T.shadow};color:${cardTextColor};${props.style||''}">${cardInner}</div>`
     }
 
     case 'divider': return `<hr style="border:none;border-top:1px solid ${T.borderSubtle};margin:${props.margin||'3rem 0'}">`
@@ -618,8 +623,8 @@ function renderComponents(node, T) {
       const featureIcon = iconSvg(iconContext, T.statValueColor || pc, 28)
       return `<div style="padding:${props.padding||'0'};${props.style||''}">
   ${props.icon !== undefined ? `<div style="margin-bottom:1.25rem;opacity:0.9">${featureIcon}</div>` : ''}
-  ${props.title ? `<h3 style="font-size:1.05rem;font-weight:600;font-family:${T.fontHeading};margin-bottom:0.6rem">${escapeHtml(props.title)}</h3>` : ''}
-  ${props.description ? `<p style="opacity:0.7;line-height:1.7;font-size:0.95rem">${escapeHtml(props.description)}</p>` : ''}
+  ${props.title ? `<h3 style="font-size:1.05rem;font-weight:600;font-family:${T.fontHeading};margin-bottom:0.6rem;color:${T.text}">${escapeHtml(props.title)}</h3>` : ''}
+  ${props.description ? `<p style="opacity:0.85;line-height:1.7;font-size:0.95rem;color:${T.text}">${escapeHtml(props.description)}</p>` : ''}
   ${childHtml}
 </div>`
     }
