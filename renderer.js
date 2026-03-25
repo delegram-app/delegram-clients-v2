@@ -544,13 +544,9 @@ function renderComponents(node, T) {
            </form>`
         : ''
 
-      // Responsive hero wrapper — centred or left-aligned, always properly padded
       const heroMaxWidth = align === 'center' ? '860px' : '780px'
-      const heroMargin = align === 'center' ? '0 auto' : '0 auto 0 0'
-      const heroPadding = align === 'center'
-        ? 'padding:5rem 2rem 4rem'
-        : 'padding:5rem 2rem 4rem max(2rem, calc((100vw - 1100px) / 2 + 2rem))'
-      return `<div style="text-align:${align};max-width:${heroMaxWidth};${heroPadding};${heroMargin !== '0 auto' ? `margin:${heroMargin}` : ''};${props.style||''}">
+      const heroMargin = align === 'center' ? '0 auto' : '0 auto'
+      return `<div style="text-align:${align};max-width:${heroMaxWidth};margin:${heroMargin};padding:5rem 2rem 4rem;${props.style||''}">
   ${props.eyebrow ? `<p style="${T.eyebrowStyle}color:${pc};margin-bottom:1.25rem">${escapeHtml(props.eyebrow)}</p>` : ''}
   ${props.headline ? `<h1 style="font-size:clamp(2.2rem,5.5vw,4rem);font-weight:${T.headingWeight};line-height:1.1;${T.headingTracking};font-family:${T.fontHeading};margin-bottom:1.5rem">${escapeHtml(props.headline)}</h1>` : ''}
   ${subtitleHtml}
