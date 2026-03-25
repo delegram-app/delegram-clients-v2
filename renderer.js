@@ -473,9 +473,10 @@ function renderComponents(node, T) {
   const isDark = T.bg.startsWith('#0') || T.bg.startsWith('#1') || T.bg.startsWith('#09')
   const overlayBorder = isDark ? 'rgba(255,255,255,0.1)' : T.borderSubtle
   const overlayBg = isDark ? 'rgba(255,255,255,0.04)' : T.cardBg
-  const inputBg = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'
-  const inputBorder = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)'
-  const btnTextColor = isDark ? '#000' : '#fff'
+  const inputBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'
+  const inputBorder = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)'
+  // Determine button text color based on primary brightness (not page bg)
+  const btnTextColor = (() => { try { const h=pc.replace('#',''); const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16); return (r*299+g*587+b*114)/1000 > 155 ? '#111' : '#fff' } catch(e){return '#fff'} })()
 
   switch (type) {
     // ── Layout ──────────────────────────────────────────────────────────────
@@ -533,15 +534,23 @@ function renderComponents(node, T) {
         : ''
 
       // Inline subscribe form if show_form is true
+      // Determine readable button text color based on primary brightness
+      const btnFg = (() => { try { const h=pc.replace('#',''); const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16); return (r*299+g*587+b*114)/1000 > 155 ? '#111' : '#fff' } catch(e){return '#fff'} })()
       const heroFormHtml = props.show_form
-        ? `<form data-subscribe-form style="display:flex;flex-direction:column;gap:0.75rem;max-width:440px;margin:0 auto;width:100%">
-            <input type="text" name="name" placeholder="Your name" required style="padding:0.875rem 1rem;border:1px solid rgba(255,255,255,0.25);border-radius:8px;background:rgba(255,255,255,0.12);color:inherit;font-size:1rem;width:100%;box-sizing:border-box;font-family:inherit">
-            <input type="email" name="email" placeholder="Your email" required style="padding:0.875rem 1rem;border:1px solid rgba(255,255,255,0.25);border-radius:8px;background:rgba(255,255,255,0.12);color:inherit;font-size:1rem;width:100%;box-sizing:border-box;font-family:inherit">
-            <button type="submit" style="padding:0.95rem;background:${pc};color:#fff;border:none;border-radius:${T.btnRadius};font-size:1rem;font-weight:700;cursor:pointer;width:100%;font-family:inherit;letter-spacing:0.01em">${escapeHtml(props.cta_label || 'Get Started')}</button>
+        ? `<form data-subscribe-form style="display:flex;flex-direction:column;gap:0.75rem;max-width:440px;${align==='center'?'margin:0 auto':'margin:0'};width:100%;text-align:left">
+            <input type="text" name="name" placeholder="Your name" required style="padding:0.875rem 1rem;border:1px solid ${T.border};border-radius:${T.radius};background:${T.cardBg};color:${T.text};font-size:1rem;width:100%;box-sizing:border-box;font-family:inherit">
+            <input type="email" name="email" placeholder="Your email" required style="padding:0.875rem 1rem;border:1px solid ${T.border};border-radius:${T.radius};background:${T.cardBg};color:${T.text};font-size:1rem;width:100%;box-sizing:border-box;font-family:inherit">
+            <button type="submit" style="padding:0.95rem;background:${pc};color:${btnFg};border:none;border-radius:${T.btnRadius};font-size:1rem;font-weight:700;cursor:pointer;width:100%;font-family:inherit;letter-spacing:0.01em">${escapeHtml(props.cta_label || 'Get Started')}</button>
            </form>`
         : ''
 
-      return `<div style="text-align:${align};max-width:860px;${align==='center'?'margin:5rem auto':'margin:5rem 0'};padding:0 2rem;${props.style||''}">
+      // Responsive hero wrapper — centred or left-aligned, always properly padded
+      const heroMaxWidth = align === 'center' ? '860px' : '780px'
+      const heroMargin = align === 'center' ? '0 auto' : '0 auto 0 0'
+      const heroPadding = align === 'center'
+        ? 'padding:5rem 2rem 4rem'
+        : 'padding:5rem 2rem 4rem max(2rem, calc((100vw - 1100px) / 2 + 2rem))'
+      return `<div style="text-align:${align};max-width:${heroMaxWidth};${heroPadding};${heroMargin !== '0 auto' ? `margin:${heroMargin}` : ''};${props.style||''}">
   ${props.eyebrow ? `<p style="${T.eyebrowStyle}color:${pc};margin-bottom:1.25rem">${escapeHtml(props.eyebrow)}</p>` : ''}
   ${props.headline ? `<h1 style="font-size:clamp(2.2rem,5.5vw,4rem);font-weight:${T.headingWeight};line-height:1.1;${T.headingTracking};font-family:${T.fontHeading};margin-bottom:1.5rem">${escapeHtml(props.headline)}</h1>` : ''}
   ${subtitleHtml}
