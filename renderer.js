@@ -439,9 +439,16 @@ fetch('/ping', { method: 'POST', headers: {'Content-Type':'application/json'},
 }).catch(()=>{});
 
 // Patch any forms missing action/method (old DB-stored pages)
+// Note: form.action always returns full URL so check getAttribute instead
 document.querySelectorAll('form[data-subscribe-form], form#contact-form').forEach(form => {
-  if (!form.action || form.action.endsWith('#')) { form.action = '/contact'; form.method = 'POST'; }
-  if (!form.method || form.method.toUpperCase() !== 'POST') form.method = 'POST';
+  const explicitAction = form.getAttribute('action');
+  if (!explicitAction || explicitAction === '#' || explicitAction === '') {
+    form.setAttribute('action', '/contact');
+    form.setAttribute('method', 'POST');
+  }
+  if ((form.getAttribute('method') || '').toUpperCase() !== 'POST') {
+    form.setAttribute('method', 'POST');
+  }
 });
 
 // Subscribe form handler
