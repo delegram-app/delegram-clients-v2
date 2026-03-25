@@ -211,20 +211,14 @@ THEMES.default = THEMES.corporate
 
 function resolveTheme(siteTheme) {
   const key = siteTheme?.theme_key
-  if (key && THEMES[key]) return { ...THEMES[key], _key: key }
+  const base = (key && THEMES[key]) ? { ...THEMES[key], _key: key } : { ...THEMES.corporate, _key: 'corporate' }
 
-  // Legacy: if theme has explicit colors but no key, wrap them into signal-style
-  if (siteTheme?.primary_color) {
-    return {
-      ...THEMES.signal,
-      bg: siteTheme.bg_color || THEMES.signal.bg,
-      text: siteTheme.text_color || THEMES.signal.text,
-      primary: siteTheme.primary_color,
-      _key: 'custom',
-    }
-  }
+  // Override with explicit colors if set — these take priority over theme defaults
+  if (siteTheme?.primary_color) base.primary = siteTheme.primary_color
+  if (siteTheme?.bg_color) base.bg = siteTheme.bg_color
+  if (siteTheme?.text_color) base.text = siteTheme.text_color
 
-  return { ...THEMES.corporate, _key: 'corporate' }
+  return base
 }
 
 // ─── Page renderer ───────────────────────────────────────────────────────────
