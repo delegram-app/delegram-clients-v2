@@ -215,10 +215,13 @@ function resolveTheme(siteTheme) {
   const key = siteTheme?.theme_key
   const base = (key && THEMES[key]) ? { ...THEMES[key], _key: key } : { ...THEMES.corporate, _key: 'corporate' }
 
-  // Override with explicit colors if set — these take priority over theme defaults
+  // Override with explicit values if set — these take priority over theme defaults
   if (siteTheme?.primary_color) base.primary = siteTheme.primary_color
   if (siteTheme?.bg_color) base.bg = siteTheme.bg_color
   if (siteTheme?.text_color) base.text = siteTheme.text_color
+  if (siteTheme?.font_heading) base.fontHeading = siteTheme.font_heading
+  if (siteTheme?.font_body) base.fontBody = siteTheme.font_body
+  if (siteTheme?.font_import) base.fontImport = siteTheme.font_import
 
   return base
 }
