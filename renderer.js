@@ -347,7 +347,7 @@ ${bodyHtml}
     <button onclick="document.getElementById('contact-modal').style.display='none'" style="position:absolute;top:1rem;right:1rem;background:none;border:none;cursor:pointer;opacity:0.5;color:${T.text};font-size:1.25rem">✕</button>
     <h3 style="font-family:${T.fontHeading};font-size:1.5rem;font-weight:${T.headingWeight};margin-bottom:0.5rem">Get in touch</h3>
     <p style="opacity:0.6;margin-bottom:1.5rem;font-size:0.95rem">Fill in your details and we'll get back to you shortly.</p>
-    <form id="contact-form" style="display:flex;flex-direction:column;gap:1rem">
+    <form id="contact-form" action="/contact" method="POST" style="display:flex;flex-direction:column;gap:1rem">
       <input name="name" placeholder="Your name" required style="padding:0.8rem 1rem;border:1px solid ${T.border};border-radius:${T.radius};background:${T.cardBg};color:${T.text};font-size:0.95rem;outline:none;font-family:inherit">
       <input name="email" type="email" placeholder="Email address" required style="padding:0.8rem 1rem;border:1px solid ${T.border};border-radius:${T.radius};background:${T.cardBg};color:${T.text};font-size:0.95rem;outline:none;font-family:inherit">
       <textarea name="message" placeholder="How can we help?" rows="3" style="padding:0.8rem 1rem;border:1px solid ${T.border};border-radius:${T.radius};background:${T.cardBg};color:${T.text};font-size:0.95rem;outline:none;font-family:inherit;resize:vertical"></textarea>
